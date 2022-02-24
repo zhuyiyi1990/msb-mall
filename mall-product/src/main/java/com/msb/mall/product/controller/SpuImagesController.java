@@ -21,7 +21,7 @@ import com.msb.common.utils.R;
 /**
  * spu图片
  *
- * @author æ±ä¸ä¸
+ * @author Yiyi Zhu
  * @email zhuyiyi1990@outlook.com
  * @date 2022-02-24 11:16:48
  */
