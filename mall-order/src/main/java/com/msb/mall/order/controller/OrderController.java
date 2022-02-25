@@ -6,6 +6,8 @@ import java.util.Map;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.mall.order.feign.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.web.bind.annotation.*;
 
 import com.msb.mall.order.entity.OrderEntity;
@@ -23,6 +25,7 @@ import com.msb.common.utils.R;
  */
 @RestController
 @RequestMapping("order/order")
+@RefreshScope
 public class OrderController {
     @Autowired
     private OrderService orderService;
@@ -33,6 +36,17 @@ public class OrderController {
     @GetMapping("/products")
     public R queryProduct() {
         return R.ok().put("products", productService.queryAllBrand());
+    }
+
+    @Value("${user.userName}")
+    private String userName;
+
+    @Value("${user.age}")
+    private Integer age;
+
+    @GetMapping("/users")
+    public R queryUser() {
+        return R.ok().put("userName", userName).put("age", age);
     }
 
     /**
