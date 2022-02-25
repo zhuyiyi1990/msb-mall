@@ -5,3 +5,5 @@ spring:
         nacos:
             config:
                 server-addr: 192.168.248.100:8848
+                namespace: 8c291569-a72f-4c5a-a1ce-1fb51390ca3c
+                group: prod
