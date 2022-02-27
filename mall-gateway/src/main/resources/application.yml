@@ -1,0 +1,19 @@
+spring:
+    application:
+        name: mall-gateway
+    cloud:
+        nacos:
+            discovery:
+                server-addr: 192.168.248.100:8848
+        gateway:
+            routes:
+                - id: route1
+                  uri: http://www.baidu.com
+                  predicates:
+                    - Query=url,baidu
+                - id: route2
+                  uri: http://www.jd.com
+                  predicates:
+                    - Query=url,jd
+server:
+    port: 8070
