@@ -7,3 +7,15 @@ spring:
                 server-addr: 192.168.248.100:8848
                 namespace: 8c291569-a72f-4c5a-a1ce-1fb51390ca3c
                 group: prod
+                ext-config[0]:
+                    data-id: mybatis.yml
+                    group: prod
+                    refresh: true
+                ext-config[1]:
+                    data-id: datasource.yml
+                    group: prod
+                    refresh: true
+                ext-config[2]:
+                    data-id: other.yml
+                    group: prod
+                    refresh: true
