@@ -38,7 +38,6 @@ public class CategoryController {
     //@RequiresPermissions("product:category:list")
     public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = categoryService.queryPage(params);
-
         return R.ok().put("page", page);
     }
 
@@ -55,7 +54,6 @@ public class CategoryController {
     //@RequiresPermissions("product:category:info")
     public R info(@PathVariable("catId") Long catId) {
         CategoryEntity category = categoryService.getById(catId);
-
         return R.ok().put("category", category);
     }
 
@@ -66,7 +64,6 @@ public class CategoryController {
     //@RequiresPermissions("product:category:save")
     public R save(@RequestBody CategoryEntity category) {
         categoryService.save(category);
-
         return R.ok();
     }
 
@@ -77,7 +74,16 @@ public class CategoryController {
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category) {
         categoryService.updateById(category);
+        return R.ok();
+    }
 
+    /**
+     * 修改
+     */
+    @RequestMapping("/updateBatch")
+    //@RequiresPermissions("product:category:updateBatch")
+    public R updateBatch(@RequestBody CategoryEntity[] category) {
+        categoryService.updateBatchById(Arrays.asList(category));
         return R.ok();
     }
 
