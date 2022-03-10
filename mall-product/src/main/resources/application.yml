@@ -21,10 +21,3 @@ mybatis-plus:
 
 server:
   port: 8040
-
-alibaba:
-  cloud:
-    access-key: your-ak
-    secret-key: your-sk
-  oss:
-    endpoint: '***'

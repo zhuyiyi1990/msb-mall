@@ -3,13 +3,12 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.248.100:8848
+    alicloud:
+      access-key: your-ak
+      secret-key: your-sk
+      oss:
+        endpoint: '***'
+        bucket: mashibing-mall
 
 server:
   port: 8090
-
-alibaba:
-  cloud:
-    access-key: your-ak
-    secret-key: your-sk
-  oss:
-    endpoint: '***'
