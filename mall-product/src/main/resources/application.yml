@@ -1,23 +1,30 @@
 spring:
-    datasource:
-        username: root
-        password: password
-        url: jdbc:mysql://192.168.248.100:3306/mall-pms
-        driver-class-name: com.mysql.cj.jdbc.Driver
-    cloud:
-        nacos:
-            discovery:
-                server-addr: 192.168.248.100:8848
-    application:
-        name: mall-product
+  datasource:
+    username: root
+    password: password
+    url: jdbc:mysql://192.168.248.100:3306/mall-pms
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.248.100:8848
+  application:
+    name: mall-product
 
 mybatis-plus:
-    mapper-locations: classpath*:/mapper/**/*.xml
-    global-config:
-        db-config:
-            id-type: auto
-            logic-delete-value: 1 # 逻辑已删除值(默认为 1)
-            logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
 
 server:
-    port: 8040
+  port: 8040
+
+alibaba:
+  cloud:
+    access-key: your-ak
+    secret-key: your-sk
+  oss:
+    endpoint: '***'
