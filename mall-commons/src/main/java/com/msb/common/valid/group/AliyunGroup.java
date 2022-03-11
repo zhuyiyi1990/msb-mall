@@ -1,12 +1,12 @@
 /**
  * Copyright (c) 2016-2019 人人开源 All rights reserved.
- *
+ * <p>
  * https://www.renren.io
- *
+ * <p>
  * 版权所有，侵权必究！
  */
 
-package com.msb.common.validator.group;
+package com.msb.common.valid.group;
 
 /**
  * 阿里云

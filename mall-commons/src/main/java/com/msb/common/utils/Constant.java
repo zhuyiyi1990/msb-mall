@@ -8,9 +8,9 @@
 
 package com.msb.common.utils;
 
-import com.msb.common.validator.group.AliyunGroup;
-import com.msb.common.validator.group.QcloudGroup;
-import com.msb.common.validator.group.QiniuGroup;
+import com.msb.common.valid.group.AliyunGroup;
+import com.msb.common.valid.group.QcloudGroup;
+import com.msb.common.valid.group.QiniuGroup;
 
 import java.util.Optional;
 import java.util.stream.Stream;
