@@ -45,7 +45,6 @@ public class BrandEntity implements Serializable {
     /**
      * 品牌logo地址
      */
-//    @Null(groups = {UpdateGroupsInterface.class})
 //    @NotBlank(message = "logo不能为空", groups = {AddGroupsInterface.class})
     @URL(message = "logo必须是一个合法URL地址", groups = {AddGroupsInterface.class, UpdateGroupsInterface.class})
     private String logo;
