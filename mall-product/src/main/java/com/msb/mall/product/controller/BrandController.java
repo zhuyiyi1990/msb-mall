@@ -64,7 +64,7 @@ public class BrandController {
     /**
      * 保存
      */
-    @RequestMapping("/save")
+    /*@RequestMapping("/save")
     //@RequiresPermissions("product:brand:save")
     public R save(@Valid @RequestBody BrandEntity brand, BindingResult result) {
         if (result.hasErrors()) {
@@ -77,6 +77,12 @@ public class BrandController {
             }
             return R.error(400, "提交的品牌表单数据不合法").put("data", map);
         }
+        brandService.save(brand);
+        return R.ok();
+    }*/
+    @RequestMapping("/save")
+    //@RequiresPermissions("product:brand:save")
+    public R save(@Valid @RequestBody BrandEntity brand) {
         brandService.save(brand);
         return R.ok();
     }
