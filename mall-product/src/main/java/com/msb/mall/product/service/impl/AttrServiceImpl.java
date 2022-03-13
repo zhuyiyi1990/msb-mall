@@ -19,6 +19,7 @@ import com.msb.mall.product.dao.AttrDao;
 import com.msb.mall.product.entity.AttrEntity;
 import com.msb.mall.product.service.AttrService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service("attrService")
 public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements AttrService {
@@ -44,6 +45,22 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             attrAttrgroupRelationEntity.setAttrGroupId(vo.getAttrGroupId());
             attrAttrgroupRelationService.save(attrAttrgroupRelationEntity);
         }
+    }
+
+    @Override
+    public PageUtils queryBasePage(Map<String, Object> params, Long catelogId) {
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
+        if (catelogId != 0) {
+            wrapper.eq("catelog_id", catelogId);
+        }
+        String key = (String) params.get("key");
+        if (!StringUtils.isEmpty(key)) {
+            wrapper.and((w) -> {
+                w.eq("attr_id", key).or().like("attr_name", key);
+            });
+        }
+        IPage<AttrEntity> page = this.page(new Query<AttrEntity>().getPage(params), wrapper);
+        return new PageUtils(page);
     }
 
 }
