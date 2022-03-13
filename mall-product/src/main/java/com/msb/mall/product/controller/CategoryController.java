@@ -17,7 +17,6 @@ import com.msb.mall.product.service.CategoryService;
 import com.msb.common.utils.PageUtils;
 import com.msb.common.utils.R;
 
-
 /**
  * 商品三级分类
  *
@@ -28,6 +27,7 @@ import com.msb.common.utils.R;
 @RestController
 @RequestMapping("product/category")
 public class CategoryController {
+
     @Autowired
     private CategoryService categoryService;
 
@@ -73,7 +73,8 @@ public class CategoryController {
     @RequestMapping("/update")
     //@RequiresPermissions("product:category:update")
     public R update(@RequestBody CategoryEntity category) {
-        categoryService.updateById(category);
+//        categoryService.updateById(category);
+        categoryService.updateDetail(category);
         return R.ok();
     }
 

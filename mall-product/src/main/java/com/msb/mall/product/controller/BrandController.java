@@ -46,7 +46,6 @@ public class BrandController {
         return R.ok().put("page", page);
     }
 
-
     /**
      * 信息
      */
@@ -89,7 +88,8 @@ public class BrandController {
     @RequestMapping("/update")
     //@RequiresPermissions("product:brand:update")
     public R update(@Validated(UpdateGroupsInterface.class) @RequestBody BrandEntity brand) {
-        brandService.updateById(brand);
+//        brandService.updateById(brand);
+        brandService.updateDetail(brand);
         return R.ok();
     }
 
