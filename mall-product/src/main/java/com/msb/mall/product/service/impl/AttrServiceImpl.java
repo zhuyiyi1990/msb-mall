@@ -1,5 +1,6 @@
 package com.msb.mall.product.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.msb.mall.product.dao.AttrAttrgroupRelationDao;
 import com.msb.mall.product.entity.AttrAttrgroupRelationEntity;
 import com.msb.mall.product.entity.AttrGroupEntity;
@@ -120,6 +121,23 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             responseVo.setCatelogName(categoryEntity.getName());
         }
         return responseVo;
+    }
+
+    @Override
+    @Transactional
+    public void updateBaseAttr(AttrVO attr) {
+        AttrEntity entity = new AttrEntity();
+        BeanUtils.copyProperties(attr, entity);
+        this.updateById(entity);
+        AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+        relationEntity.setAttrId(entity.getAttrId());
+        relationEntity.setAttrGroupId(attr.getAttrGroupId());
+        Integer count = attrAttrgroupRelationDao.selectCount(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
+        if (count > 0) {
+            attrAttrgroupRelationDao.update(relationEntity, new UpdateWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attr.getAttrId()));
+        } else {
+            attrAttrgroupRelationDao.insert(relationEntity);
+        }
     }
 
 }
