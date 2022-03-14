@@ -76,7 +76,8 @@ public class AttrController {
     @RequestMapping("/delete")
     //@RequiresPermissions("product:attr:delete")
     public R delete(@RequestBody Long[] attrIds) {
-        attrService.removeByIds(Arrays.asList(attrIds));
+//        attrService.removeByIds(Arrays.asList(attrIds));
+        attrService.removeByIdsDetails(attrIds);
         return R.ok();
     }
 

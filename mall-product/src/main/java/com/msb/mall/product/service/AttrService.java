@@ -27,4 +27,6 @@ public interface AttrService extends IService<AttrEntity> {
 
     void updateBaseAttr(AttrVO attr);
 
+    void removeByIdsDetails(Long[] attrIds);
+
 }
