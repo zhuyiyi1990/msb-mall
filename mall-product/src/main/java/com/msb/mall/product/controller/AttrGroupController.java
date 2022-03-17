@@ -103,4 +103,10 @@ public class AttrGroupController {
         return R.ok();
     }
 
+    @GetMapping("/{attrgroupId}/noattr/relation")
+    public R attrNoRelation(@PathVariable("attrgroupId") Long attrgroupId, @RequestParam Map<String, Object> params) {
+        PageUtils pageUtils = attrService.getNoAttrRelation(params, attrgroupId);
+        return R.ok().put("page", pageUtils);
+    }
+
 }
