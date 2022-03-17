@@ -8,6 +8,7 @@ import java.util.Map;
 import com.msb.mall.product.entity.AttrEntity;
 import com.msb.mall.product.service.AttrService;
 import com.msb.mall.product.service.CategoryService;
+import com.msb.mall.product.vo.AttrGroupRelationVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,6 +95,12 @@ public class AttrGroupController {
     public R attrRelation(@PathVariable("attrgroupId") Long attrgroupId) {
         List<AttrEntity> list = attrService.getRelationAttr(attrgroupId);
         return R.ok().put("data", list);
+    }
+
+    @PostMapping("/attr/relation/delete")
+    public R relationDelete(@RequestBody AttrGroupRelationVO[] vos) {
+        attrService.deleteRelation(vos);
+        return R.ok();
     }
 
 }

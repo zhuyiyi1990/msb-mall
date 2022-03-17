@@ -9,6 +9,7 @@ import com.msb.mall.product.entity.CategoryEntity;
 import com.msb.mall.product.service.AttrAttrgroupRelationService;
 import com.msb.mall.product.service.AttrGroupService;
 import com.msb.mall.product.service.CategoryService;
+import com.msb.mall.product.vo.AttrGroupRelationVO;
 import com.msb.mall.product.vo.AttrResponseVo;
 import com.msb.mall.product.vo.AttrVO;
 import org.springframework.beans.BeanUtils;
@@ -166,6 +167,16 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
         List<AttrEntity> attrEntities = list.stream().map((entity) -> this.getById(entity.getAttrId())).filter((entity) -> entity != null).collect(Collectors.toList());
         return attrEntities;
+    }
+
+    @Override
+    public void deleteRelation(AttrGroupRelationVO[] vos) {
+        List<AttrAttrgroupRelationEntity> list = Arrays.asList(vos).stream().map((item) -> {
+            AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(item, entity);
+            return entity;
+        }).collect(Collectors.toList());
+        attrAttrgroupRelationDao.removeBatchRelation(list);
     }
 
 }

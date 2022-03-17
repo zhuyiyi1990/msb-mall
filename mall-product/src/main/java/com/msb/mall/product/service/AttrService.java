@@ -3,6 +3,7 @@ package com.msb.mall.product.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.msb.common.utils.PageUtils;
 import com.msb.mall.product.entity.AttrEntity;
+import com.msb.mall.product.vo.AttrGroupRelationVO;
 import com.msb.mall.product.vo.AttrResponseVo;
 import com.msb.mall.product.vo.AttrVO;
 
@@ -31,5 +32,7 @@ public interface AttrService extends IService<AttrEntity> {
     void removeByIdsDetails(Long[] attrIds);
 
     List<AttrEntity> getRelationAttr(Long attrgroupId);
+
+    void deleteRelation(AttrGroupRelationVO[] vos);
 
 }
