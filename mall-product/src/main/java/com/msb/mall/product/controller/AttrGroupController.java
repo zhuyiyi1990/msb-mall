@@ -6,6 +6,7 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.mall.product.entity.AttrEntity;
+import com.msb.mall.product.service.AttrAttrgroupRelationService;
 import com.msb.mall.product.service.AttrService;
 import com.msb.mall.product.service.CategoryService;
 import com.msb.mall.product.vo.AttrGroupRelationVO;
@@ -36,6 +37,9 @@ public class AttrGroupController {
 
     @Autowired
     private AttrService attrService;
+
+    @Autowired
+    private AttrAttrgroupRelationService relationService;
 
     /**
      * 列表
@@ -107,6 +111,12 @@ public class AttrGroupController {
     public R attrNoRelation(@PathVariable("attrgroupId") Long attrgroupId, @RequestParam Map<String, Object> params) {
         PageUtils pageUtils = attrService.getNoAttrRelation(params, attrgroupId);
         return R.ok().put("page", pageUtils);
+    }
+
+    @PostMapping("/attr/relation")
+    public R saveBatch(@RequestBody List<AttrGroupRelationVO> vos) {
+        relationService.saveBatch(vos);
+        return R.ok();
     }
 
 }
