@@ -161,4 +161,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         this.removeByIds(Arrays.asList(attrIds));
     }
 
+    @Override
+    public List<AttrEntity> getRelationAttr(Long attrgroupId) {
+        List<AttrAttrgroupRelationEntity> list = attrAttrgroupRelationDao.selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrgroupId));
+        List<AttrEntity> attrEntities = list.stream().map((entity) -> this.getById(entity.getAttrId())).filter((entity) -> entity != null).collect(Collectors.toList());
+        return attrEntities;
+    }
+
 }

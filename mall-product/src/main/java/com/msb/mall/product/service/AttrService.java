@@ -6,6 +6,7 @@ import com.msb.mall.product.entity.AttrEntity;
 import com.msb.mall.product.vo.AttrResponseVo;
 import com.msb.mall.product.vo.AttrVO;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,5 +29,7 @@ public interface AttrService extends IService<AttrEntity> {
     void updateBaseAttr(AttrVO attr);
 
     void removeByIdsDetails(Long[] attrIds);
+
+    List<AttrEntity> getRelationAttr(Long attrgroupId);
 
 }
