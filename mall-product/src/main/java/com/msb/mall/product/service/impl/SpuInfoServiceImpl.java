@@ -2,10 +2,7 @@ package com.msb.mall.product.service.impl;
 
 import com.msb.mall.product.entity.*;
 import com.msb.mall.product.service.*;
-import com.msb.mall.product.vo.BaseAttrs;
-import com.msb.mall.product.vo.Images;
-import com.msb.mall.product.vo.Skus;
-import com.msb.mall.product.vo.SpuInfoVO;
+import com.msb.mall.product.vo.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +41,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     SkuImagesService skuImagesService;
+
+    @Autowired
+    SkuSaleAttrValueService skuSaleAttrValueService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -118,9 +118,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }).collect(Collectors.toList());
                 skuImagesService.saveBatch(skuImagesEntities);
 //                5.3
+//                5.4
+                List<Attr> attrs = item.getAttr();
+                List<SkuSaleAttrValueEntity> saleAttrValueEntities = attrs.stream().map(sale -> {
+                    SkuSaleAttrValueEntity entity = new SkuSaleAttrValueEntity();
+                    BeanUtils.copyProperties(sale, entity);
+                    entity.setSkuId(skuInfoEntity.getSkuId());
+                    return entity;
+                }).collect(Collectors.toList());
+                skuSaleAttrValueService.saveBatch(saleAttrValueEntities);
             });
-//            5.4
         }
+//        6
     }
 
 }
