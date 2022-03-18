@@ -10,6 +10,7 @@ import com.msb.mall.product.service.AttrAttrgroupRelationService;
 import com.msb.mall.product.service.AttrService;
 import com.msb.mall.product.service.CategoryService;
 import com.msb.mall.product.vo.AttrGroupRelationVO;
+import com.msb.mall.product.vo.AttrGroupWithAttrsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -117,6 +118,12 @@ public class AttrGroupController {
     public R saveBatch(@RequestBody List<AttrGroupRelationVO> vos) {
         relationService.saveBatch(vos);
         return R.ok();
+    }
+
+    @GetMapping("/{catelogId}/withattr")
+    public R getAttrgroupWithAttrs(@PathVariable("catelogId") Long catelogId) {
+        List<AttrGroupWithAttrsVo> list = attrGroupService.getAttrgroupWithAttrsByCatelogId(catelogId);
+        return R.ok().put("data", list);
     }
 
 }
