@@ -42,6 +42,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     SkuInfoService skuInfoService;
 
+    @Autowired
+    SkuImagesService skuImagesService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoEntity> page = this.page(new Query<SpuInfoEntity>().getPage(params), new QueryWrapper<SpuInfoEntity>());
@@ -105,7 +108,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }
                 skuInfoEntity.setSkuDefaultImg(defaultImage);
                 skuInfoService.save(skuInfoEntity);
+//                5.2
+                List<SkuImagesEntity> skuImagesEntities = images1.stream().map(img -> {
+                    SkuImagesEntity entity = new SkuImagesEntity();
+                    entity.setSkuId(skuInfoEntity.getSkuId());
+                    entity.setImgUrl(img.getImgUrl());
+                    entity.setDefaultImg(img.getDefaultImg());
+                    return entity;
+                }).collect(Collectors.toList());
+                skuImagesService.saveBatch(skuImagesEntities);
+//                5.3
             });
+//            5.4
         }
     }
 
