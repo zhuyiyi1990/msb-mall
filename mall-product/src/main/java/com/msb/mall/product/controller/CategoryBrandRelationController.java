@@ -31,9 +31,9 @@ public class CategoryBrandRelationController {
     /**
      * 列表
      */
-    @RequestMapping("/catelog/list")
+    @RequestMapping("/catalog/list")
     //@RequiresPermissions("product:categorybrandrelation:list")
-    public R catelogList(Long brandId) {
+    public R catalogList(Long brandId) {
 //        PageUtils page = categoryBrandRelationService.queryPage(params);
         QueryWrapper<CategoryBrandRelationEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("brand_id", brandId);

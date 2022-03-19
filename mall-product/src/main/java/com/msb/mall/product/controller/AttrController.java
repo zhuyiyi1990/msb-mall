@@ -1,6 +1,5 @@
 package com.msb.mall.product.controller;
 
-import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -9,7 +8,6 @@ import com.msb.mall.product.vo.AttrVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.msb.mall.product.entity.AttrEntity;
 import com.msb.mall.product.service.AttrService;
 import com.msb.common.utils.PageUtils;
 import com.msb.common.utils.R;
@@ -81,9 +79,9 @@ public class AttrController {
         return R.ok();
     }
 
-    @GetMapping("/{attrType}/list/{catelogId}")
-    public R baseList(@RequestParam Map<String, Object> params, @PathVariable("catelogId") Long catelogId, @PathVariable("attrType") String attrType) {
-        PageUtils page = attrService.queryBasePage(params, catelogId, attrType);
+    @GetMapping("/{attrType}/list/{catalogId}")
+    public R baseList(@RequestParam Map<String, Object> params, @PathVariable("catalogId") Long catalogId, @PathVariable("attrType") String attrType) {
+        PageUtils page = attrService.queryBasePage(params, catalogId, attrType);
         return R.ok().put("page", page);
     }
 

@@ -35,7 +35,7 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     }
 
     @Override
-    public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
+    public PageUtils queryPage(Map<String, Object> params, Long catalogId) {
         String key = (String) params.get("key");
         QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<>();
         if (!StringUtils.isEmpty(key)) {
@@ -43,18 +43,18 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
                 obj.eq("attr_group_id", key).or().like("attr_group_name", key);
             });
         }
-        if (catelogId == 0) {
+        if (catalogId == 0) {
             IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params), wrapper);
             return new PageUtils(page);
         }
-        wrapper.eq("catelog_id", catelogId);
+        wrapper.eq("catalog_id", catalogId);
         IPage<AttrGroupEntity> page = this.page(new Query<AttrGroupEntity>().getPage(params), wrapper);
         return new PageUtils(page);
     }
 
     @Override
-    public List<AttrGroupWithAttrsVo> getAttrgroupWithAttrsByCatelogId(Long catelogId) {
-        List<AttrGroupEntity> attrGroups = this.list(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+    public List<AttrGroupWithAttrsVo> getAttrgroupWithAttrsByCatalogId(Long catalogId) {
+        List<AttrGroupEntity> attrGroups = this.list(new QueryWrapper<AttrGroupEntity>().eq("catalog_id", catalogId));
         List<AttrGroupWithAttrsVo> list = attrGroups.stream().map((group) -> {
             AttrGroupWithAttrsVo vo = new AttrGroupWithAttrsVo();
             BeanUtils.copyProperties(group, vo);

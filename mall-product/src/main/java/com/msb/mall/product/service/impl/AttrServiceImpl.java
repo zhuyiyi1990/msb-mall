@@ -73,11 +73,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
     }
 
     @Override
-    public PageUtils queryBasePage(Map<String, Object> params, Long catelogId, String attrType) {
+    public PageUtils queryBasePage(Map<String, Object> params, Long catalogId, String attrType) {
         QueryWrapper<AttrEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("attr_type", "base".equalsIgnoreCase(attrType) ? 1 : 0);
-        if (catelogId != 0) {
-            wrapper.eq("catelog_id", catelogId);
+        if (catalogId != 0) {
+            wrapper.eq("catalog_id", catalogId);
         }
         String key = (String) params.get("key");
         if (!StringUtils.isEmpty(key)) {
@@ -91,9 +91,9 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<AttrResponseVo> list = records.stream().map((attrEntity) -> {
             AttrResponseVo responseVo = new AttrResponseVo();
             BeanUtils.copyProperties(attrEntity, responseVo);
-            CategoryEntity categoryEntity = categoryService.getById(attrEntity.getCatelogId());
+            CategoryEntity categoryEntity = categoryService.getById(attrEntity.getCatalogId());
             if (categoryEntity != null) {
-                responseVo.setCatelogName(categoryEntity.getName());
+                responseVo.setCatalogName(categoryEntity.getName());
             }
             if ("base".equalsIgnoreCase(attrType)) {
                 AttrAttrgroupRelationEntity entity = new AttrAttrgroupRelationEntity();
@@ -125,12 +125,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 }
             }
         }
-        Long catelogId = attrEntity.getCatelogId();
-        Long[] catelogPath = categoryService.findCatelogPath(catelogId);
-        responseVo.setCatelogPath(catelogPath);
-        CategoryEntity categoryEntity = categoryService.getById(catelogId);
+        Long catalogId = attrEntity.getCatalogId();
+        Long[] catalogPath = categoryService.findCatalogPath(catalogId);
+        responseVo.setCatalogPath(catalogPath);
+        CategoryEntity categoryEntity = categoryService.getById(catalogId);
         if (categoryEntity != null) {
-            responseVo.setCatelogName(categoryEntity.getName());
+            responseVo.setCatalogName(categoryEntity.getName());
         }
         return responseVo;
     }
@@ -188,10 +188,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
 // 1.查询当前属性组所在的类别编号
         AttrGroupEntity attrGroupEntity = attrGroupService.getById(attrgroupId);
 // 获取到对应的分类id
-        Long catelogId = attrGroupEntity.getCatelogId();
+        Long catalogId = attrGroupEntity.getCatalogId();
 // 2.当前分组只能关联自己所属的类别下其他的分组没有关联的属性信息。
 // 先找到这个类别下的所有的分组信息
-        List<AttrGroupEntity> group = attrGroupDao.selectList(new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId));
+        List<AttrGroupEntity> group = attrGroupDao.selectList(new QueryWrapper<AttrGroupEntity>().eq("catalog_id", catalogId));
 // 获取属性组的编号集合
         List<Long> groupIds = group.stream().map((g) -> g.getAttrGroupId()).collect(Collectors.toList());
 // 然后查询出类别信息下所有的属性组已经分配的属性信息
@@ -199,7 +199,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         List<Long> attrIds = relationEntities.stream().map((m) -> m.getAttrId()).collect(Collectors.toList());
 // 根据类别编号查询所有的属性信息并排除掉上面的属性信息即可
 // 这其实就是需要查询出最终返回给调用者的信息了 分页 带条件查询
-        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catelog_id", catelogId)
+        QueryWrapper<AttrEntity> wrapper = new QueryWrapper<AttrEntity>().eq("catalog_id", catalogId)
 // 查询的是基本属性信息，不需要查询销售属性信息
                 .eq("attr_type", ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode());
 // 然后添加排除的条件

@@ -42,11 +42,11 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     @Override
     public void saveDetail(CategoryBrandRelationEntity categoryBrandRelation) {
         Long brandId = categoryBrandRelation.getBrandId();
-        Long catelogId = categoryBrandRelation.getCatelogId();
-        CategoryEntity categoryEntity = categoryService.getById(catelogId);
+        Long catalogId = categoryBrandRelation.getCatalogId();
+        CategoryEntity categoryEntity = categoryService.getById(catalogId);
         BrandEntity brandEntity = brandService.getById(brandId);
         categoryBrandRelation.setBrandName(brandEntity.getName());
-        categoryBrandRelation.setCatelogName(categoryEntity.getName());
+        categoryBrandRelation.setCatalogName(categoryEntity.getName());
         this.save(categoryBrandRelation);
     }
 
@@ -59,16 +59,16 @@ public class CategoryBrandRelationServiceImpl extends ServiceImpl<CategoryBrandR
     }
 
     @Override
-    public void updateCatelogName(Long catId, String name) {
+    public void updateCatalogName(Long catId, String name) {
         CategoryBrandRelationEntity entity = new CategoryBrandRelationEntity();
-        entity.setCatelogId(catId);
-        entity.setCatelogName(name);
-        this.update(entity, new UpdateWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        entity.setCatalogId(catId);
+        entity.setCatalogName(name);
+        this.update(entity, new UpdateWrapper<CategoryBrandRelationEntity>().eq("catalog_id", catId));
     }
 
     @Override
     public List<CategoryBrandRelationEntity> categoryBrandRelation(Long catId) {
-        List<CategoryBrandRelationEntity> list = relationDao.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catelog_id", catId));
+        List<CategoryBrandRelationEntity> list = relationDao.selectList(new QueryWrapper<CategoryBrandRelationEntity>().eq("catalog_id", catId));
         /*List<BrandEntity> collect = list.stream().map((m) -> {
             BrandEntity entity = new BrandEntity();
             entity.setName(m.getBrandName());

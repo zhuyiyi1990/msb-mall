@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.Arrays;
 import java.util.List;
 
 @SpringBootTest
@@ -45,8 +44,8 @@ class MallProductApplicationTests {
 
     @Test
     public void test1() {
-        Long[] catelogPath = categoryService.findCatelogPath(387L);
-        for (Long aLong : catelogPath) {
+        Long[] catalogPath = categoryService.findCatalogPath(387L);
+        for (Long aLong : catalogPath) {
             System.out.println(aLong);
         }
     }

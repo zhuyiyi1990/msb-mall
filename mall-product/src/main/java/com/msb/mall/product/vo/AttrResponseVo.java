@@ -5,10 +5,10 @@ import lombok.Data;
 @Data
 public class AttrResponseVo extends AttrVO {
 
-    private String catelogName;
+    private String catalogName;
 
     private String groupName;
 
-    private Long[] catelogPath;
+    private Long[] catalogPath;
 
 }

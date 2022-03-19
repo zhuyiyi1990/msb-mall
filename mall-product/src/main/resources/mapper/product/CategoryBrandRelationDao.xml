@@ -3,14 +3,13 @@
 
 <mapper namespace="com.msb.mall.product.dao.CategoryBrandRelationDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.msb.mall.product.entity.CategoryBrandRelationEntity" id="categoryBrandRelationMap">
         <result property="id" column="id"/>
         <result property="brandId" column="brand_id"/>
-        <result property="catelogId" column="catelog_id"/>
+        <result property="catalogId" column="catalog_id"/>
         <result property="brandName" column="brand_name"/>
-        <result property="catelogName" column="catelog_name"/>
+        <result property="catalogName" column="catalog_name"/>
     </resultMap>
-
 
 </mapper>

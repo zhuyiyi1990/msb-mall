@@ -57,16 +57,16 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     @Override
-    public Long[] findCatelogPath(Long catelogId) {
+    public Long[] findCatalogPath(Long catalogId) {
         List<Long> paths = new ArrayList<>();
-        List<Long> parentPath = findParentPath(catelogId, paths);
+        List<Long> parentPath = findParentPath(catalogId, paths);
         Collections.reverse(parentPath);
         return parentPath.toArray(new Long[parentPath.size()]);
     }
 
-    private List<Long> findParentPath(Long catelogId, List<Long> paths) {
-        paths.add(catelogId);
-        CategoryEntity entity = this.getById(catelogId);
+    private List<Long> findParentPath(Long catalogId, List<Long> paths) {
+        paths.add(catalogId);
+        CategoryEntity entity = this.getById(catalogId);
         if (entity.getParentCid() != 0) {
             findParentPath(entity.getParentCid(), paths);
         }
@@ -78,7 +78,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public void updateDetail(CategoryEntity category) {
         this.updateById(category);
         if (!StringUtils.isEmpty(category.getName())) {
-            categoryBrandRelationService.updateCatelogName(category.getCatId(), category.getName());
+            categoryBrandRelationService.updateCatalogName(category.getCatId(), category.getName());
         }
     }
 
