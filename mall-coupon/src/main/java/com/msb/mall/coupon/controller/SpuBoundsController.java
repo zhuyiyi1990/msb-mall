@@ -16,8 +16,6 @@ import com.msb.mall.coupon.service.SpuBoundsService;
 import com.msb.common.utils.PageUtils;
 import com.msb.common.utils.R;
 
-
-
 /**
  * 商品spu积分设置
  *
@@ -28,6 +26,7 @@ import com.msb.common.utils.R;
 @RestController
 @RequestMapping("coupon/spubounds")
 public class SpuBoundsController {
+
     @Autowired
     private SpuBoundsService spuBoundsService;
 
@@ -36,21 +35,18 @@ public class SpuBoundsController {
      */
     @RequestMapping("/list")
     //@RequiresPermissions("coupon:spubounds:list")
-    public R list(@RequestParam Map<String, Object> params){
+    public R list(@RequestParam Map<String, Object> params) {
         PageUtils page = spuBoundsService.queryPage(params);
-
         return R.ok().put("page", page);
     }
-
 
     /**
      * 信息
      */
     @RequestMapping("/info/{id}")
     //@RequiresPermissions("coupon:spubounds:info")
-    public R info(@PathVariable("id") Long id){
-		SpuBoundsEntity spuBounds = spuBoundsService.getById(id);
-
+    public R info(@PathVariable("id") Long id) {
+        SpuBoundsEntity spuBounds = spuBoundsService.getById(id);
         return R.ok().put("spuBounds", spuBounds);
     }
 
@@ -59,9 +55,14 @@ public class SpuBoundsController {
      */
     @RequestMapping("/save")
     //@RequiresPermissions("coupon:spubounds:save")
-    public R save(@RequestBody SpuBoundsEntity spuBounds){
-		spuBoundsService.save(spuBounds);
+    public R save(@RequestBody SpuBoundsEntity spuBounds) {
+        spuBoundsService.save(spuBounds);
+        return R.ok();
+    }
 
+    @RequestMapping("/saveSpuBounds")
+    public R saveSpuBounds(@RequestBody SpuBoundsEntity spuBounds) {
+        spuBoundsService.save(spuBounds);
         return R.ok();
     }
 
@@ -70,9 +71,8 @@ public class SpuBoundsController {
      */
     @RequestMapping("/update")
     //@RequiresPermissions("coupon:spubounds:update")
-    public R update(@RequestBody SpuBoundsEntity spuBounds){
-		spuBoundsService.updateById(spuBounds);
-
+    public R update(@RequestBody SpuBoundsEntity spuBounds) {
+        spuBoundsService.updateById(spuBounds);
         return R.ok();
     }
 
@@ -81,9 +81,8 @@ public class SpuBoundsController {
      */
     @RequestMapping("/delete")
     //@RequiresPermissions("coupon:spubounds:delete")
-    public R delete(@RequestBody Long[] ids){
-		spuBoundsService.removeByIds(Arrays.asList(ids));
-
+    public R delete(@RequestBody Long[] ids) {
+        spuBoundsService.removeByIds(Arrays.asList(ids));
         return R.ok();
     }
 
