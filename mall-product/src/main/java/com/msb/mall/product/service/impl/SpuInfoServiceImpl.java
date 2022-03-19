@@ -1,5 +1,6 @@
 package com.msb.mall.product.service.impl;
 
+import com.msb.common.dto.SkuReductionDTO;
 import com.msb.mall.product.entity.*;
 import com.msb.mall.product.feign.CouponFeignService;
 import com.msb.mall.product.service.*;
@@ -122,6 +123,10 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }).collect(Collectors.toList());
                 skuImagesService.saveBatch(skuImagesEntities);
 //                5.3
+                SkuReductionDTO dto = new SkuReductionDTO();
+                BeanUtils.copyProperties(item, dto);
+                dto.setSkuId(skuInfoEntity.getSkuId());
+                couponFeignService.saveFullReductionInfo(dto);
 //                5.4
                 List<Attr> attrs = item.getAttr();
                 List<SkuSaleAttrValueEntity> saleAttrValueEntities = attrs.stream().map(sale -> {
