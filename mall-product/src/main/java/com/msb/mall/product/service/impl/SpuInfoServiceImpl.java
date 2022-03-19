@@ -1,6 +1,7 @@
 package com.msb.mall.product.service.impl;
 
 import com.msb.mall.product.entity.*;
+import com.msb.mall.product.feign.CouponFeignService;
 import com.msb.mall.product.service.*;
 import com.msb.mall.product.vo.*;
 import org.springframework.beans.BeanUtils;
@@ -44,6 +45,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     SkuSaleAttrValueService skuSaleAttrValueService;
+
+    @Autowired
+    CouponFeignService couponFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
