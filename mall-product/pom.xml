@@ -7,7 +7,6 @@
         <artifactId>mall-mall</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>com.msb.mall</groupId>
     <artifactId>mall-product</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>mall-product</name>
@@ -30,6 +29,10 @@
             <groupId>com.msb.mall</groupId>
             <artifactId>mall-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
     </dependencies>
 

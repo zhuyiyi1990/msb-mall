@@ -1,5 +1,6 @@
 package com.msb.mall.product.service.impl;
 
+import com.msb.common.dto.MemberPrice;
 import com.msb.common.dto.SkuReductionDTO;
 import com.msb.common.dto.SpuBoundsDTO;
 import com.msb.common.utils.R;
@@ -122,12 +123,22 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                     entity.setImgUrl(img.getImgUrl());
                     entity.setDefaultImg(img.getDefaultImg());
                     return entity;
+                }).filter(img -> {
+                    return img.getDefaultImg() == 1;
                 }).collect(Collectors.toList());
                 skuImagesService.saveBatch(skuImagesEntities);
 //                5.3 保存满减信息、折扣、会员价 mall-sms:sms_sku_ladder sms_full_reduction sms_member_price
                 SkuReductionDTO dto = new SkuReductionDTO();
                 BeanUtils.copyProperties(item, dto);
                 dto.setSkuId(skuInfoEntity.getSkuId());
+                if (item.getMemberPrice() != null && item.getMemberPrice().size() > 0) {
+                    List<MemberPrice> list = item.getMemberPrice().stream().map(memberPrice -> {
+                        MemberPrice mDto = new MemberPrice();
+                        BeanUtils.copyProperties(memberPrice, mDto);
+                        return mDto;
+                    }).collect(Collectors.toList());
+                    dto.setMemberPrice(list);
+                }
                 R r = couponFeignService.saveFullReductionInfo(dto);
                 if (r.getCode() != 0) {
                     log.error("调用Coupon服务处理满减、折扣、会员价操作失败...");
