@@ -1,5 +1,6 @@
 package com.msb.mall.product.service.impl;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.msb.common.dto.MemberPrice;
 import com.msb.common.dto.SkuReductionDTO;
 import com.msb.common.dto.SpuBoundsDTO;
@@ -53,6 +54,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     CouponFeignService couponFeignService;
+
+    @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    BrandService brandService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -189,7 +196,22 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             wrapper.eq("brand_id", brandId);
         }
         IPage<SpuInfoEntity> page = this.page(new Query<SpuInfoEntity>().getPage(params), wrapper);
-        return new PageUtils(page);
+        List<SpuInfoVO> list = page.getRecords().stream().map(spu -> {
+            Long catalogId1 = spu.getCatalogId();
+            CategoryEntity categoryEntity = categoryService.getById(catalogId1);
+            Long brandId1 = spu.getBrandId();
+            BrandEntity brandEntity = brandService.getById(brandId1);
+            SpuInfoVO vo = new SpuInfoVO();
+            BeanUtils.copyProperties(spu, vo);
+            vo.setCatalogName(categoryEntity.getName());
+            vo.setBrandName(brandEntity.getName());
+            return vo;
+        }).collect(Collectors.toList());
+        IPage<SpuInfoVO> iPage = new Page<>();
+        iPage.setRecords(list);
+        iPage.setPages(page.getPages());
+        iPage.setCurrent(page.getCurrent());
+        return new PageUtils(iPage);
     }
 
 }
