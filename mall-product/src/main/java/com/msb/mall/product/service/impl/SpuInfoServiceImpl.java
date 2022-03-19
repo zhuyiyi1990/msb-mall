@@ -116,7 +116,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }
                 skuInfoEntity.setSkuDefaultImg(defaultImage);
                 skuInfoService.save(skuInfoEntity);
-//                5.2 保存sku的图片信息 pms_sku_image
+//                5.2 保存sku的图片信息 pms_sku_images
                 List<SkuImagesEntity> skuImagesEntities = images1.stream().map(img -> {
                     SkuImagesEntity entity = new SkuImagesEntity();
                     entity.setSkuId(skuInfoEntity.getSkuId());
@@ -127,7 +127,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                     return img.getDefaultImg() == 1;
                 }).collect(Collectors.toList());
                 skuImagesService.saveBatch(skuImagesEntities);
-//                5.3 保存满减信息、折扣、会员价 mall-sms:sms_sku_ladder sms_full_reduction sms_member_price
+//                5.3 保存满减信息、折扣、会员价 mall-sms:sms_sku_ladder sms_sku_full_reduction sms_member_price
                 SkuReductionDTO dto = new SkuReductionDTO();
                 BeanUtils.copyProperties(item, dto);
                 dto.setSkuId(skuInfoEntity.getSkuId());
