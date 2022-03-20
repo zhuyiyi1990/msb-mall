@@ -55,17 +55,31 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             this.save(purchaseEntity);
             purchaseId = purchaseEntity.getId();
         }
+//        判断采购单的状态
+        PurchaseEntity purchaseEntity = this.getById(purchaseId);
+        if (purchaseEntity.getStatus() > WareConstant.PurchaseStatusEnum.RECEIVE.getCode()) {
+//            该菜单不能合单
+            return -1;
+        }
 //        整合菜单需求单
         List<Long> items = mergeVO.getItems();
         final long finalPurchaseId = purchaseId;
-        List<PurchaseDetailEntity> list = items.stream().map(i -> {
+        List<PurchaseDetailEntity> list = items.stream().filter(id -> {
+            PurchaseDetailEntity item = detailService.getById(id);
+            if (item.getStatus() == WareConstant.PurchaseDetailStatusEnum.CREATED.getCode() || item.getStatus() == WareConstant.PurchaseDetailStatusEnum.ASSIGNED.getCode()) {
+                return true;
+            }
+            return false;
+        }).map(i -> {
             PurchaseDetailEntity detailEntity = new PurchaseDetailEntity();
             detailEntity.setId(i);
             detailEntity.setPurchaseId(finalPurchaseId);
             detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.ASSIGNED.getCode());
             return detailEntity;
         }).collect(Collectors.toList());
-        detailService.updateBatchById(list);
+        if (list != null && list.size() > 0) {
+            detailService.updateBatchById(list);
+        }
         PurchaseEntity entity = new PurchaseEntity();
         entity.setId(purchaseId);
         entity.setUpdateTime(new Date());

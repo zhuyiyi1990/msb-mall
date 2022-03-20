@@ -90,6 +90,9 @@ public class PurchaseController {
     @RequestMapping("/merge")
     public R merge(@RequestBody MergeVO mergeVO) {
         Integer flag = purchaseService.merge(mergeVO);
+        if (flag != null && flag == -1) {
+            return R.error("合并失败...该采购单不能被合并！");
+        }
         return R.ok();
     }
 
