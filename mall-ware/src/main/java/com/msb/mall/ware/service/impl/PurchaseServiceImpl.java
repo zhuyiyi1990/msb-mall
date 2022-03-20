@@ -4,6 +4,7 @@ import com.msb.common.constant.WareConstant;
 import com.msb.mall.ware.entity.PurchaseDetailEntity;
 import com.msb.mall.ware.service.PurchaseDetailService;
 import com.msb.mall.ware.vo.MergeVO;
+import com.msb.mall.ware.vo.PurchaseDoneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -118,6 +119,14 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             }).collect(Collectors.toList());
             detailService.updateBatchById(collect);
         }
+    }
+
+    @Override
+    @Transactional
+    public void done(PurchaseDoneVO vo) {
+//        1.改变采购单的状态
+//        2.改变采购项的状态
+//        3.将采购成功的采购项进行入库操作
     }
 
 }

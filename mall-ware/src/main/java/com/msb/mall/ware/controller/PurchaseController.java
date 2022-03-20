@@ -6,6 +6,7 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.mall.ware.vo.MergeVO;
+import com.msb.mall.ware.vo.PurchaseDoneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,6 +100,18 @@ public class PurchaseController {
     @PostMapping("/receive")
     public R receive(@RequestBody List<Long> ids) {
         purchaseService.receive(ids);
+        return R.ok();
+    }
+
+    /**
+     * 完成采购
+     *
+     * @param vo
+     * @return
+     */
+    @PostMapping("/done")
+    public R done(@RequestBody PurchaseDoneVO vo) {
+        purchaseService.done(vo);
         return R.ok();
     }
 
