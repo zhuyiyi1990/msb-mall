@@ -21,6 +21,7 @@ import com.msb.common.utils.Query;
 import com.msb.mall.ware.dao.PurchaseDao;
 import com.msb.mall.ware.entity.PurchaseEntity;
 import com.msb.mall.ware.service.PurchaseService;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service("purchaseService")
 public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity> implements PurchaseService {
@@ -70,6 +71,39 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         entity.setUpdateTime(new Date());
         this.updateById(entity);
         return null;
+    }
+
+    /**
+     * 领取采购单
+     *
+     * @param ids
+     */
+    @Override
+    @Transactional
+    public void receive(List<Long> ids) {
+        List<PurchaseEntity> list = ids.stream().map(id -> {
+            return this.getById(id);
+        }).filter(item -> {
+            if (item.getStatus() == WareConstant.PurchaseStatusEnum.CREATED.getCode() || item.getStatus() == WareConstant.PurchaseStatusEnum.ASSIGNED.getCode()) {
+                return true;
+            }
+            return false;
+        }).map(item -> {
+            item.setUpdateTime(new Date());
+            item.setStatus(WareConstant.PurchaseStatusEnum.RECEIVE.getCode());
+            return item;
+        }).collect(Collectors.toList());
+        this.updateBatchById(list);
+        for (Long id : ids) {
+            List<PurchaseDetailEntity> detailEntities = detailService.listDetailByPurchaseId(id);
+            List<PurchaseDetailEntity> collect = detailEntities.stream().map(item -> {
+                PurchaseDetailEntity entity = new PurchaseDetailEntity();
+                entity.setId(item.getId());
+                entity.setStatus(WareConstant.PurchaseDetailStatusEnum.BUYING.getCode());
+                return entity;
+            }).collect(Collectors.toList());
+            detailService.updateBatchById(collect);
+        }
     }
 
 }

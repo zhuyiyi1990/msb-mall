@@ -1,16 +1,13 @@
 package com.msb.mall.ware.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.mall.ware.vo.MergeVO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.msb.mall.ware.entity.PurchaseEntity;
 import com.msb.mall.ware.service.PurchaseService;
@@ -93,6 +90,12 @@ public class PurchaseController {
     @RequestMapping("/merge")
     public R merge(@RequestBody MergeVO mergeVO) {
         Integer flag = purchaseService.merge(mergeVO);
+        return R.ok();
+    }
+
+    @PostMapping("/receive")
+    public R receive(@RequestBody List<Long> ids) {
+        purchaseService.receive(ids);
         return R.ok();
     }
 
