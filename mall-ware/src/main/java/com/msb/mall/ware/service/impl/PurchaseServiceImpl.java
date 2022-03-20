@@ -1,7 +1,10 @@
 package com.msb.mall.ware.service.impl;
 
+import com.msb.common.constant.WareConstant;
+import com.msb.mall.ware.vo.MergeVO;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,6 +32,21 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
         queryWrapper.eq("status", 0).or().eq("status", 1);
         IPage<PurchaseEntity> page = this.page(new Query<PurchaseEntity>().getPage(params), queryWrapper);
         return new PageUtils(page);
+    }
+
+    @Override
+    public Integer merge(MergeVO mergeVO) {
+        Long purchaseId = mergeVO.getPurchaseId();
+        if (purchaseId == null) {
+//            新建采购单
+            PurchaseEntity purchaseEntity = new PurchaseEntity();
+            purchaseEntity.setStatus(WareConstant.PurchaseStatusEnum.CREATED.getCode());
+            purchaseEntity.setCreateTime(new Date());
+            purchaseEntity.setUpdateTime(new Date());
+            this.save(purchaseEntity);
+            purchaseId = purchaseEntity.getId();
+        }
+        return null;
     }
 
 }

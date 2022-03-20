@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.msb.mall.ware.vo.MergeVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -87,6 +88,12 @@ public class PurchaseController {
     public R listUnreceive(@RequestParam Map<String, Object> params) {
         PageUtils page = purchaseService.queryPageUnreceive(params);
         return R.ok().put("page", page);
+    }
+
+    @RequestMapping("/merge")
+    public R merge(@RequestBody MergeVO mergeVO) {
+        Integer flag = purchaseService.merge(mergeVO);
+        return R.ok();
     }
 
 }
