@@ -1,11 +1,16 @@
 package com.msb.mall.ware.service.impl;
 
 import com.msb.common.constant.WareConstant;
+import com.msb.mall.ware.entity.PurchaseDetailEntity;
+import com.msb.mall.ware.service.PurchaseDetailService;
 import com.msb.mall.ware.vo.MergeVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -19,6 +24,9 @@ import com.msb.mall.ware.service.PurchaseService;
 
 @Service("purchaseService")
 public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity> implements PurchaseService {
+
+    @Autowired
+    private PurchaseDetailService detailService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -46,6 +54,21 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
             this.save(purchaseEntity);
             purchaseId = purchaseEntity.getId();
         }
+//        整合菜单需求单
+        List<Long> items = mergeVO.getItems();
+        final long finalPurchaseId = purchaseId;
+        List<PurchaseDetailEntity> list = items.stream().map(i -> {
+            PurchaseDetailEntity detailEntity = new PurchaseDetailEntity();
+            detailEntity.setId(i);
+            detailEntity.setPurchaseId(finalPurchaseId);
+            detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.ASSIGNED.getCode());
+            return detailEntity;
+        }).collect(Collectors.toList());
+        detailService.updateBatchById(list);
+        PurchaseEntity entity = new PurchaseEntity();
+        entity.setId(purchaseId);
+        entity.setUpdateTime(new Date());
+        this.updateById(entity);
         return null;
     }
 
