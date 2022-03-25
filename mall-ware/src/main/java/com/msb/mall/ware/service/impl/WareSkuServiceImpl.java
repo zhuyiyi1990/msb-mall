@@ -1,5 +1,7 @@
 package com.msb.mall.ware.service.impl;
 
+import com.msb.common.utils.R;
+import com.msb.mall.ware.feign.ProductFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,9 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Autowired
     private WareSkuDao skuDao;
+
+    @Autowired
+    private ProductFeignService productFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -56,6 +61,16 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             entity.setWareId(wareId);
             entity.setStock(skuNum);
             entity.setStockLocked(0);
+            try {
+//            动态地设置商品的名称
+                R info = productFeignService.info(skuId);//通过Feign远程调用商品服务的接口
+                Map<String, Object> data = (Map<String, Object>) info.get("skuInfo");
+                if (info.getCode() == 0) {
+                    entity.setSkuName((String) data.get("skuName"));
+                }
+            } catch (Exception e) {
+
+            }
             skuDao.insert(entity);//插入商品库存记录
         } else {
 //        如果有就更新库存
