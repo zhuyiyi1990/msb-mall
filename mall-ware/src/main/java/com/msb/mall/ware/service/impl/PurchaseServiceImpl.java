@@ -5,9 +5,11 @@ import com.msb.mall.ware.entity.PurchaseDetailEntity;
 import com.msb.mall.ware.service.PurchaseDetailService;
 import com.msb.mall.ware.vo.MergeVO;
 import com.msb.mall.ware.vo.PurchaseDoneVO;
+import com.msb.mall.ware.vo.PurchaseItemDoneVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -124,9 +126,33 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
     @Override
     @Transactional
     public void done(PurchaseDoneVO vo) {
-//        1.改变采购单的状态
+//        获取采购单编号
+        Long id = vo.getId();
 //        2.改变采购项的状态
-//        3.将采购成功的采购项进行入库操作
+        Boolean flag = true;
+        List<PurchaseItemDoneVO> items = vo.getItems();
+        List<PurchaseDetailEntity> list = new ArrayList<>();
+        for (PurchaseItemDoneVO item : items) {
+            PurchaseDetailEntity detailEntity = new PurchaseDetailEntity();
+            if (item.getStatus() == WareConstant.PurchaseDetailStatusEnum.HASERROR.getCode()) {
+                flag = false;
+                detailEntity.setStatus(item.getStatus());
+            } else {
+//                采购项采购成功
+                detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.FINISH.getCode());
+//                3.将采购成功的采购项进行入库操作
+            }
+            detailEntity.setId(item.getItemId());
+//            detailService.updateById(detailEntity);
+            list.add(detailEntity);
+        }
+        detailService.updateBatchById(list);//批量更新采购项
+//        1.改变采购单的状态
+        PurchaseEntity purchaseEntity = new PurchaseEntity();
+        purchaseEntity.setId(id);
+        purchaseEntity.setStatus(flag ? WareConstant.PurchaseStatusEnum.FINISH.getCode() : WareConstant.PurchaseStatusEnum.HASERROR.getCode());
+        purchaseEntity.setUpdateTime(new Date());
+        this.updateById(purchaseEntity);
     }
 
 }
