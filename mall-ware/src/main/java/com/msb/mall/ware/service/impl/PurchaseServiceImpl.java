@@ -3,6 +3,7 @@ package com.msb.mall.ware.service.impl;
 import com.msb.common.constant.WareConstant;
 import com.msb.mall.ware.entity.PurchaseDetailEntity;
 import com.msb.mall.ware.service.PurchaseDetailService;
+import com.msb.mall.ware.service.WareSkuService;
 import com.msb.mall.ware.vo.MergeVO;
 import com.msb.mall.ware.vo.PurchaseDoneVO;
 import com.msb.mall.ware.vo.PurchaseItemDoneVO;
@@ -31,6 +32,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 
     @Autowired
     private PurchaseDetailService detailService;
+
+    @Autowired
+    private WareSkuService wareSkuService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -141,6 +145,9 @@ public class PurchaseServiceImpl extends ServiceImpl<PurchaseDao, PurchaseEntity
 //                采购项采购成功
                 detailEntity.setStatus(WareConstant.PurchaseDetailStatusEnum.FINISH.getCode());
 //                3.将采购成功的采购项进行入库操作
+//                根据采购单编号查询出对应的采购项详情
+                PurchaseDetailEntity detailEntity1 = detailService.getById(item.getItemId());
+                wareSkuService.addStock(detailEntity1.getSkuId(), detailEntity1.getWareId(), detailEntity1.getSkuNum());
             }
             detailEntity.setId(item.getItemId());
 //            detailService.updateById(detailEntity);
