@@ -10,6 +10,8 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.aggregations.AggregationBuilder;
+import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +81,26 @@ class MallSearchApplicationTests {
         SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
 //        查询出bank下address中包含mill的记录
         sourceBuilder.query(QueryBuilders.matchQuery("address", "mill"));
+        searchRequest.source(sourceBuilder);
+        System.out.println(searchRequest);
+//        2.如何执行检索操作
+        SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+//        3.获取检索后的响应对象，我们需要解析出我们关心的数据
+        System.out.println("ElasticSearch检索的信息：" + response);
+    }
+
+    @Test
+    void searchIndexAggregation() throws IOException {
+//        1.创建一个SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("bank");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+//        查询出bank下所有的文档
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+//        聚合aggregation
+//        聚合bank下年龄的分布和每个年龄段的平均薪资
+        AggregationBuilder aggregationBuilder = AggregationBuilders.terms("ageAgg").field("age").size(10);
+        sourceBuilder.aggregation(aggregationBuilder);
         searchRequest.source(sourceBuilder);
         System.out.println(searchRequest);
 //        2.如何执行检索操作
