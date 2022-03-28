@@ -5,11 +5,16 @@ import com.msb.mall.mallsearch.config.MallElasticSearchConfiguration;
 import lombok.Data;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
+import org.elasticsearch.action.search.SearchRequest;
+import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
 
 @SpringBootTest
 class MallSearchApplicationTests {
@@ -49,8 +54,20 @@ class MallSearchApplicationTests {
      * 复杂的检索
      */
     @Test
-    void searchIndex() {
-
+    void searchIndex() throws IOException {
+//        1.创建一个SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("bank");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        /*sourceBuilder.query();
+        sourceBuilder.from();
+        sourceBuilder.size();
+        sourceBuilder.aggregation();*/
+        searchRequest.source(sourceBuilder);
+//        2.如何执行检索操作
+        SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+//        3.获取检索后的响应对象，我们需要解析出我们关心的数据
+        System.out.println("ElasticSearch检索的信息：" + response);
     }
 
 }
