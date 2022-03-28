@@ -45,4 +45,12 @@ class MallSearchApplicationTests {
         private String gender;
     }
 
+    /**
+     * 复杂的检索
+     */
+    @Test
+    void searchIndex() {
+
+    }
+
 }
