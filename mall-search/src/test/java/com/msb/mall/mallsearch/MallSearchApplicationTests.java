@@ -3,13 +3,19 @@ package com.msb.mall.mallsearch;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.msb.mall.mallsearch.config.MallElasticSearchConfiguration;
 import lombok.Data;
+import lombok.ToString;
+import org.apache.lucene.search.TotalHits;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
@@ -65,6 +71,55 @@ class MallSearchApplicationTests {
         SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
 //        3.获取检索后的响应对象，我们需要解析出我们关心的数据
         System.out.println("ElasticSearch检索的信息：" + response);
+    }
+
+    @Test
+    void searchIndexResponse() throws IOException {
+//        1.创建一个SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("bank");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+//        查询出bank下address中包含mill的记录
+        sourceBuilder.query(QueryBuilders.matchQuery("address", "mill"));
+        searchRequest.source(sourceBuilder);
+        System.out.println(searchRequest);
+//        2.如何执行检索操作
+        SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+//        3.获取检索后的响应对象，我们需要解析出我们关心的数据
+//        System.out.println("ElasticSearch检索的信息：" + response);
+        RestStatus status = response.status();
+        TimeValue took = response.getTook();
+        SearchHits hits = response.getHits();
+        TotalHits totalHits = hits.getTotalHits();
+        TotalHits.Relation relation = totalHits.relation;
+        long value = totalHits.value;
+        float maxScore = hits.getMaxScore();
+        SearchHit[] hits1 = hits.getHits();
+        for (SearchHit documentFields : hits1) {
+            String json = documentFields.getSourceAsString();
+            System.out.println(json);
+//            JSON字符串转换为 Object对象
+            ObjectMapper mapper = new ObjectMapper();
+            Account account = mapper.readValue(json, Account.class);
+            System.out.println("account = " + account);
+        }
+//        System.out.println(relation.toString() + "--->" + value + "--->" + status);
+    }
+
+    @ToString
+    @Data
+    static class Account {
+        private int account_number;
+        private int balance;
+        private String firstname;
+        private String lastname;
+        private int age;
+        private String gender;
+        private String address;
+        private String employer;
+        private String email;
+        private String city;
+        private String state;
     }
 
     /**
