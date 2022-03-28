@@ -12,6 +12,7 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.metrics.AvgAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,29 +29,6 @@ class MallSearchApplicationTests {
     @Test
     void contextLoads() {
         System.out.println("--->" + client);
-    }
-
-    @Test
-    void saveIndex() throws Exception {
-        IndexRequest indexRequest = new IndexRequest("system");
-        indexRequest.id("1");
-//        indexRequest.source("name", "bobokaoya", "age", 18, "gender", "男");
-        User user = new User();
-        user.setName("bobo");
-        user.setAge(22);
-        user.setGender("男");
-        ObjectMapper objectMapper = new ObjectMapper();
-        String json = objectMapper.writeValueAsString(user);
-        indexRequest.source(json, XContentType.JSON);
-        IndexResponse index = client.index(indexRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
-        System.out.println(index);
-    }
-
-    @Data
-    class User {
-        private String name;
-        private Integer age;
-        private String gender;
     }
 
     /**
@@ -89,6 +67,11 @@ class MallSearchApplicationTests {
         System.out.println("ElasticSearch检索的信息：" + response);
     }
 
+    /**
+     * 聚合：嵌套
+     *
+     * @throws IOException
+     */
     @Test
     void searchIndexAggregation() throws IOException {
 //        1.创建一个SearchRequest对象
@@ -100,13 +83,70 @@ class MallSearchApplicationTests {
 //        聚合aggregation
 //        聚合bank下年龄的分布和每个年龄段的平均薪资
         AggregationBuilder aggregationBuilder = AggregationBuilders.terms("ageAgg").field("age").size(10);
+//        嵌套聚合
+        aggregationBuilder.subAggregation(AggregationBuilders.avg("balanceAvg").field("balance"));
         sourceBuilder.aggregation(aggregationBuilder);
+        sourceBuilder.size(0);//聚合的时候就不用显示满足条件的文档内容了
         searchRequest.source(sourceBuilder);
+        System.out.println(sourceBuilder);
         System.out.println(searchRequest);
 //        2.如何执行检索操作
         SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
 //        3.获取检索后的响应对象，我们需要解析出我们关心的数据
-        System.out.println("ElasticSearch检索的信息：" + response);
+        System.out.println(response);
+    }
+
+    /**
+     * 聚合：嵌套
+     *
+     * @throws IOException
+     */
+    @Test
+    void searchIndexAggregation1() throws IOException {
+//        1.创建一个SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("bank");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+//        查询出bank下所有的文档
+        sourceBuilder.query(QueryBuilders.matchAllQuery());
+//        聚合aggregation
+//        聚合bank下年龄的分布和平均薪资
+        AggregationBuilder aggregationBuilder = AggregationBuilders.terms("ageAgg").field("age").size(10);
+        sourceBuilder.aggregation(aggregationBuilder);
+//        聚合平均年龄
+        AvgAggregationBuilder balanceAggBuilder = AggregationBuilders.avg("balanceAgg").field("age");
+        sourceBuilder.aggregation(balanceAggBuilder);
+        sourceBuilder.size(0);//聚合的时候就不用显示满足条件的文档内容了
+        searchRequest.source(sourceBuilder);
+        System.out.println(sourceBuilder);
+        System.out.println(searchRequest);
+//        2.如何执行检索操作
+        SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+//        3.获取检索后的响应对象，我们需要解析出我们关心的数据
+        System.out.println(response);
+    }
+
+    @Test
+    void saveIndex() throws Exception {
+        IndexRequest indexRequest = new IndexRequest("system");
+        indexRequest.id("1");
+//        indexRequest.source("name", "bobokaoya", "age", 18, "gender", "男");
+        User user = new User();
+        user.setName("bobo");
+        user.setAge(22);
+        user.setGender("男");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(user);
+        indexRequest.source(json, XContentType.JSON);
+        IndexResponse index = client.index(indexRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+        System.out.println(index);
+    }
+
+    @Data
+    class User {
+        private String name;
+        private Integer age;
+        private String gender;
     }
 
 }
