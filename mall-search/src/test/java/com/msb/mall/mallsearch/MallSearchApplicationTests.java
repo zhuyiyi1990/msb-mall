@@ -9,6 +9,7 @@ import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ class MallSearchApplicationTests {
      * 复杂的检索
      */
     @Test
-    void searchIndex() throws IOException {
+    void searchIndexAll() throws IOException {
 //        1.创建一个SearchRequest对象
         SearchRequest searchRequest = new SearchRequest();
         searchRequest.indices("bank");
@@ -64,6 +65,22 @@ class MallSearchApplicationTests {
         sourceBuilder.size();
         sourceBuilder.aggregation();*/
         searchRequest.source(sourceBuilder);
+//        2.如何执行检索操作
+        SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
+//        3.获取检索后的响应对象，我们需要解析出我们关心的数据
+        System.out.println("ElasticSearch检索的信息：" + response);
+    }
+
+    @Test
+    void searchIndexByAddress() throws IOException {
+//        1.创建一个SearchRequest对象
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices("bank");
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+//        查询出bank下address中包含mill的记录
+        sourceBuilder.query(QueryBuilders.matchQuery("address", "mill"));
+        searchRequest.source(sourceBuilder);
+        System.out.println(searchRequest);
 //        2.如何执行检索操作
         SearchResponse response = client.search(searchRequest, MallElasticSearchConfiguration.COMMON_OPTIONS);
 //        3.获取检索后的响应对象，我们需要解析出我们关心的数据
