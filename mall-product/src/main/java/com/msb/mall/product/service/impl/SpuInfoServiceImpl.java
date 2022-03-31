@@ -220,6 +220,24 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public void up(Long spuId) {
         List<SkuESModel> skuEs = new ArrayList<>();
         List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+        List<SkuESModel.Attrs> attrsModel = getAttrsModel(spuId);
+        List<SkuESModel> skuESModels = skus.stream().map(item -> {
+            SkuESModel model = new SkuESModel();
+            BeanUtils.copyProperties(item, model);
+            model.setSubTitle(item.getSkuTitle());
+            model.setSkuPrice(item.getPrice());
+            model.setHotScore(0L);
+            BrandEntity brand = brandService.getById(item.getBrandId());
+            CategoryEntity category = categoryService.getById(item.getCatalogId());
+            model.setBrandName(brand.getName());
+            model.setBrandImg(brand.getLogo());
+            model.setCatalogName(category.getName());
+            model.setAttrs(attrsModel);
+            return model;
+        }).collect(Collectors.toList());
+    }
+
+    private List<SkuESModel.Attrs> getAttrsModel(Long spuId) {
         List<ProductAttrValueEntity> baseAttrs = productAttrValueService.baseAttrsForSpuId(spuId);
         List<Long> attrIds = baseAttrs.stream().map(item -> {
             return item.getAttrId();
@@ -235,20 +253,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             BeanUtils.copyProperties(item, attr);
             return attr;
         }).collect(Collectors.toList());
-        List<SkuESModel> skuESModels = skus.stream().map(item -> {
-            SkuESModel model = new SkuESModel();
-            BeanUtils.copyProperties(item, model);
-            model.setSubTitle(item.getSkuTitle());
-            model.setSkuPrice(item.getPrice());
-            model.setHotScore(0L);
-            BrandEntity brand = brandService.getById(item.getBrandId());
-            CategoryEntity category = categoryService.getById(item.getCatalogId());
-            model.setBrandName(brand.getName());
-            model.setBrandImg(brand.getLogo());
-            model.setCatalogName(category.getName());
-            model.setAttrs(attrsModel);
-            return model;
-        }).collect(Collectors.toList());
+        return attrsModel;
     }
 
 }

@@ -1,5 +1,6 @@
 package com.msb.mall.ware.service.impl;
 
+import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.utils.R;
 import com.msb.mall.ware.feign.ProductFeignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,6 +77,11 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 //        如果有就更新库存
             skuDao.addStock(skuId, wareId, skuNum);
         }
+    }
+
+    @Override
+    public List<SkuHasStockDto> getSkusHasStock(List<Long> skuIds) {
+        return null;
     }
 
 }
