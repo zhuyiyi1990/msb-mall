@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.msb.common.dto.MemberPrice;
 import com.msb.common.dto.SkuReductionDTO;
 import com.msb.common.dto.SpuBoundsDTO;
+import com.msb.common.dto.es.SkuESModel;
 import com.msb.common.utils.R;
 import com.msb.mall.product.entity.*;
 import com.msb.mall.product.feign.CouponFeignService;
@@ -13,6 +14,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -216,7 +218,16 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     public void up(Long spuId) {
-
+        List<SkuESModel> skuEs = new ArrayList<>();
+        List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+        List<SkuESModel> skuESModels = skus.stream().map(item -> {
+            SkuESModel model = new SkuESModel();
+            BeanUtils.copyProperties(item, model);
+            model.setSubTitle(item.getSkuTitle());
+            model.setSkuPrice(item.getPrice());
+            model.setHotScore(0L);
+            return model;
+        }).collect(Collectors.toList());
     }
 
 }
