@@ -226,6 +226,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             model.setSubTitle(item.getSkuTitle());
             model.setSkuPrice(item.getPrice());
             model.setHotScore(0L);
+            BrandEntity brand = brandService.getById(item.getBrandId());
+            CategoryEntity category = categoryService.getById(item.getCatalogId());
+            model.setBrandName(brand.getName());
+            model.setBrandImg(brand.getLogo());
+            model.setCatalogName(category.getName());
             return model;
         }).collect(Collectors.toList());
     }
