@@ -226,11 +226,20 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
         List<SkuESModel> skuEs = new ArrayList<>();
         List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
         List<SkuESModel.Attrs> attrsModel = getAttrsModel(spuId);
+        List<Long> skuIds = skus.stream().map(sku -> {
+            return sku.getSkuId();
+        }).collect(Collectors.toList());
+        Map<Long, Boolean> skusHasStockMap = getSkusHasStock(skuIds);
         List<SkuESModel> skuESModels = skus.stream().map(item -> {
             SkuESModel model = new SkuESModel();
             BeanUtils.copyProperties(item, model);
             model.setSubTitle(item.getSkuTitle());
             model.setSkuPrice(item.getPrice());
+            if (skusHasStockMap == null) {
+                model.setHasStock(false);
+            } else {
+                model.setHasStock(skusHasStockMap.get(item.getSkuId()));
+            }
             model.setHotScore(0L);
             BrandEntity brand = brandService.getById(item.getBrandId());
             CategoryEntity category = categoryService.getById(item.getCatalogId());
