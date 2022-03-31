@@ -220,6 +220,21 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     public void up(Long spuId) {
         List<SkuESModel> skuEs = new ArrayList<>();
         List<SkuInfoEntity> skus = skuInfoService.getSkusBySpuId(spuId);
+        List<ProductAttrValueEntity> baseAttrs = productAttrValueService.baseAttrsForSpuId(spuId);
+        List<Long> attrIds = baseAttrs.stream().map(item -> {
+            return item.getAttrId();
+        }).collect(Collectors.toList());
+        List<Long> searchAttrIds = attrService.selectSearchAttrIds(attrIds);
+        List<SkuESModel.Attrs> attrsModel = baseAttrs.stream().filter(item -> {
+            return searchAttrIds.contains(item.getAttrId());
+        }).map(item -> {
+            SkuESModel.Attrs attr = new SkuESModel.Attrs();
+            /*attr.setAttrId(item.getAttrId());
+            attr.setAttrName(item.getAttrName());
+            attr.setAttrValue(item.getAttrValue());*/
+            BeanUtils.copyProperties(item, attr);
+            return attr;
+        }).collect(Collectors.toList());
         List<SkuESModel> skuESModels = skus.stream().map(item -> {
             SkuESModel model = new SkuESModel();
             BeanUtils.copyProperties(item, model);
@@ -231,6 +246,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             model.setBrandName(brand.getName());
             model.setBrandImg(brand.getLogo());
             model.setCatalogName(category.getName());
+            model.setAttrs(attrsModel);
             return model;
         }).collect(Collectors.toList());
     }
