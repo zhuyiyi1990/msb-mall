@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -81,7 +82,14 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
     @Override
     public List<SkuHasStockDto> getSkusHasStock(List<Long> skuIds) {
-        return null;
+        List<SkuHasStockDto> list = skuIds.stream().map(skuId -> {
+            Long count = baseMapper.getSkuStock(skuId);
+            SkuHasStockDto dto = new SkuHasStockDto();
+            dto.setSkuId(skuId);
+            dto.setHasStock(count > 0);
+            return dto;
+        }).collect(Collectors.toList());
+        return list;
     }
 
 }

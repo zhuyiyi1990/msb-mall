@@ -2,12 +2,14 @@ package com.msb.mall.product.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.msb.common.dto.MemberPrice;
+import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.dto.SkuReductionDTO;
 import com.msb.common.dto.SpuBoundsDTO;
 import com.msb.common.dto.es.SkuESModel;
 import com.msb.common.utils.R;
 import com.msb.mall.product.entity.*;
 import com.msb.mall.product.feign.CouponFeignService;
+import com.msb.mall.product.feign.WareSkuFeignService;
 import com.msb.mall.product.service.*;
 import com.msb.mall.product.vo.*;
 import org.springframework.beans.BeanUtils;
@@ -62,6 +64,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     BrandService brandService;
+
+    @Autowired
+    WareSkuFeignService wareSkuFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -235,6 +240,21 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             model.setAttrs(attrsModel);
             return model;
         }).collect(Collectors.toList());
+    }
+
+    private Map<Long, Boolean> getSkusHasStock(List<Long> skuIds) {
+        List<SkuHasStockDto> skusHasStock = null;
+        if (skuIds == null || skuIds.size() == 0) {
+            return null;
+        }
+        try {
+            skusHasStock = wareSkuFeignService.getSkusHasStock(skuIds);
+            Map<Long, Boolean> map = skusHasStock.stream().collect(Collectors.toMap(SkuHasStockDto::getSkuId, SkuHasStockDto::getHasStock));
+            return map;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private List<SkuESModel.Attrs> getAttrsModel(Long spuId) {
