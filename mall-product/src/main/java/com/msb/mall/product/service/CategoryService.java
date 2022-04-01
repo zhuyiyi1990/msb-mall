@@ -26,4 +26,6 @@ public interface CategoryService extends IService<CategoryEntity> {
 
     void updateDetail(CategoryEntity category);
 
+    List<CategoryEntity> getLevel1Category();
+
 }

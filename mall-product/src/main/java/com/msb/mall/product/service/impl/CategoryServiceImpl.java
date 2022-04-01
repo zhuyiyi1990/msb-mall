@@ -82,4 +82,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
     }
 
+    @Override
+    public List<CategoryEntity> getLevel1Category() {
+        List<CategoryEntity> list = baseMapper.queryLevel1Category();
+        return list;
+    }
+
 }
