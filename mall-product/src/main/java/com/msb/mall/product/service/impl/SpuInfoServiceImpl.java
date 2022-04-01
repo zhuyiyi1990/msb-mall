@@ -14,6 +14,7 @@ import com.msb.mall.product.feign.SearchFeignService;
 import com.msb.mall.product.feign.WareSkuFeignService;
 import com.msb.mall.product.service.*;
 import com.msb.mall.product.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import com.msb.mall.product.dao.SpuInfoDao;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+@Slf4j
 @Service("spuInfoService")
 public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> implements SpuInfoService {
 
@@ -254,7 +256,12 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             model.setAttrs(attrsModel);
             return model;
         }).collect(Collectors.toList());
+        // 将SkuESModel中的数据存储到ES中
         R r = searchFeignService.productStatusUp(skuESModels);
+        // 3.更新SPUID对应的状态
+        // 根据对应的状态更新商品的状态
+        log.info("----->ES操作完成：{}", r.getCode());
+        System.out.println("-------------->" + r.getCode());
         if (r.getCode() == 0) {
             baseMapper.updateSpuStatusUp(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
         } else {
