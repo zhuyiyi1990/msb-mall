@@ -1,6 +1,7 @@
 package com.msb.mall.product.service.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.msb.common.constant.ProductConstant;
 import com.msb.common.dto.MemberPrice;
 import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.dto.SkuReductionDTO;
@@ -254,6 +255,11 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             return model;
         }).collect(Collectors.toList());
         R r = searchFeignService.productStatusUp(skuESModels);
+        if (r.getCode() == 0) {
+            baseMapper.updateSpuStatusUp(spuId, ProductConstant.StatusEnum.SPU_UP.getCode());
+        } else {
+
+        }
     }
 
     private Map<Long, Boolean> getSkusHasStock(List<Long> skuIds) {
