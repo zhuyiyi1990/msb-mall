@@ -9,6 +9,7 @@ import com.msb.common.dto.es.SkuESModel;
 import com.msb.common.utils.R;
 import com.msb.mall.product.entity.*;
 import com.msb.mall.product.feign.CouponFeignService;
+import com.msb.mall.product.feign.SearchFeignService;
 import com.msb.mall.product.feign.WareSkuFeignService;
 import com.msb.mall.product.service.*;
 import com.msb.mall.product.vo.*;
@@ -67,6 +68,9 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     WareSkuFeignService wareSkuFeignService;
+
+    @Autowired
+    SearchFeignService searchFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -249,6 +253,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             model.setAttrs(attrsModel);
             return model;
         }).collect(Collectors.toList());
+        R r = searchFeignService.productStatusUp(skuESModels);
     }
 
     private Map<Long, Boolean> getSkusHasStock(List<Long> skuIds) {
