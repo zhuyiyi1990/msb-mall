@@ -94,10 +94,21 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         List<CategoryEntity> level1Category = this.getLevel1Category();
         Map<String, List<Catalog2VO>> map = level1Category.stream().collect(Collectors.toMap(key -> key.getCatId().toString(), value -> {
             List<CategoryEntity> l2Catalogs = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", value.getCatId()));
-            List<Catalog2VO> catalog2VOs = l2Catalogs.stream().map(l2 -> {
-                Catalog2VO catalog2VO = new Catalog2VO(l2.getParentCid().toString(), null, l2.getCatId().toString(), l2.getName());
-                return catalog2VO;
-            }).collect(Collectors.toList());
+            List<Catalog2VO> catalog2VOs = null;
+            if (l2Catalogs != null) {
+                catalog2VOs = l2Catalogs.stream().map(l2 -> {
+                    Catalog2VO catalog2VO = new Catalog2VO(l2.getParentCid().toString(), null, l2.getCatId().toString(), l2.getName());
+                    List<CategoryEntity> l3Catalogs = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", catalog2VO.getId()));
+                    if (l3Catalogs != null) {
+                        List<Catalog2VO.Catalog3VO> catalog3VOS = l3Catalogs.stream().map(l3 -> {
+                            Catalog2VO.Catalog3VO catalog3VO = new Catalog2VO.Catalog3VO(l3.getParentCid().toString(), l3.getCatId().toString(), l3.getName());
+                            return catalog3VO;
+                        }).collect(Collectors.toList());
+                        catalog2VO.setCatalog3List(catalog3VOS);
+                    }
+                    return catalog2VO;
+                }).collect(Collectors.toList());
+            }
             return catalog2VOs;
         }));
         return map;
