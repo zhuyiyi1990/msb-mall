@@ -1,6 +1,7 @@
 package com.msb.mall.product.service.impl;
 
 import com.msb.mall.product.service.CategoryBrandRelationService;
+import com.msb.mall.product.vo.Catalog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -86,6 +87,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public List<CategoryEntity> getLevel1Category() {
         List<CategoryEntity> list = baseMapper.queryLevel1Category();
         return list;
+    }
+
+    @Override
+    public Map<String, List<Catalog2VO>> getCatalog2JSON() {
+        List<CategoryEntity> level1Category = this.getLevel1Category();
+        Map<String, List<Catalog2VO>> map = level1Category.stream().collect(Collectors.toMap(key -> key.getCatId().toString(), value -> {
+            List<CategoryEntity> l2Catalogs = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", value.getCatId()));
+            List<Catalog2VO> catalog2VOs = l2Catalogs.stream().map(l2 -> {
+                Catalog2VO catalog2VO = new Catalog2VO(l2.getParentCid().toString(), null, l2.getCatId().toString(), l2.getName());
+                return catalog2VO;
+            }).collect(Collectors.toList());
+            return catalog2VOs;
+        }));
+        return map;
     }
 
 }
