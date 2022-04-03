@@ -37,5 +37,9 @@ spring:
             - Path=/app/**
           filters:
             - RewritePath=/app/(?<segment>/?.*),/renren-fast/$\{segment}
+        - id: msbmall_host_route
+          uri: lb://mall-product
+          predicates:
+            - Host=msb.mall.com
 server:
   port: 8070
