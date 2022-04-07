@@ -10,7 +10,7 @@ spring:
         - id: product_route
           uri: lb://mall-product
           predicates:
-            - Path=/app/product/**
+            - Path=/app/product/**,/hello
           filters:
             - RewritePath=/app/(?<segment>/?.*),/$\{segment}
         - id: third-route
