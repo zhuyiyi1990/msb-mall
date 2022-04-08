@@ -1,8 +1,11 @@
 package com.msb.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.msb.mall.product.service.CategoryBrandRelationService;
 import com.msb.mall.product.vo.Catalog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -25,6 +28,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     CategoryBrandRelationService categoryBrandRelationService;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -123,6 +129,26 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Map<String, List<Catalog2VO>> getCatalog2JSON() {
+        String catalogJSON = stringRedisTemplate.opsForValue().get("catalogJSON");
+        if (StringUtils.isEmpty(catalogJSON)) {
+            Map<String, List<Catalog2VO>> catalog2JSONForDb = getCatalog2JSONForDb();
+            String json = JSON.toJSONString(catalog2JSONForDb);
+            stringRedisTemplate.opsForValue().set("catalogJSON", json);
+            return catalog2JSONForDb;
+        }
+        Map<String, List<Catalog2VO>> stringListMap = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catalog2VO>>>() {
+        });
+        return stringListMap;
+    }
+
+    /**
+     * 从数据库查询的结果
+     * 查询出所有的二级和三级分类的数据
+     * 并封装为Map<String, Catalog2VO>对象
+     *
+     * @return
+     */
+    public Map<String, List<Catalog2VO>> getCatalog2JSONForDb() {
         if (cache.containsKey("getCatalog2JSON")) {
             return cache.get("getCatalog2JSON");
         }
