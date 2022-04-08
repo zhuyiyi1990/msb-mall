@@ -161,6 +161,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             /*if (cache.containsKey("getCatalog2JSON")) {
                 return cache.get("getCatalog2JSON");
             }*/
+            System.out.println("------加锁-----》");
             String keys = "catalogJSON";
             String catalogJSON = stringRedisTemplate.opsForValue().get(keys);
             if (!StringUtils.isEmpty(catalogJSON)) {
