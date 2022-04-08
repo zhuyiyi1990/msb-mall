@@ -113,6 +113,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return collect;
     }
 
+    private Map<String, Map<String, List<Catalog2VO>>> cache = new HashMap<>();
+
     /**
      * 查询出所有的二级和三级分类的数据
      * 并封装为Map<String, Catalog2VO>对象
@@ -121,6 +123,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Map<String, List<Catalog2VO>> getCatalog2JSON() {
+        if (cache.containsKey("getCatalog2JSON")) {
+            return cache.get("getCatalog2JSON");
+        }
         // 获取所有的分类数据
         List<CategoryEntity> list = baseMapper.selectList(new QueryWrapper<>());
         // 获取所有的一级分类的数据
@@ -150,6 +155,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }
             return catalog2VOs;
         }));
+        cache.put("getCatalog2JSON", map);
         return map;
     }
 
