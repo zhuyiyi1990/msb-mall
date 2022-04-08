@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -119,7 +120,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         return collect;
     }
 
-    private Map<String, Map<String, List<Catalog2VO>>> cache = new HashMap<>();
+//    private Map<String, Map<String, List<Catalog2VO>>> cache = new HashMap<>();
 
     /**
      * 查询出所有的二级和三级分类的数据
@@ -129,13 +130,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     public Map<String, List<Catalog2VO>> getCatalog2JSON() {
-        String catalogJSON = stringRedisTemplate.opsForValue().get("catalogJSON");
+        String key = "catalogJSON";
+        String catalogJSON = stringRedisTemplate.opsForValue().get(key);
         if (StringUtils.isEmpty(catalogJSON)) {
+            System.out.println("缓存没有命中......");
             Map<String, List<Catalog2VO>> catalog2JSONForDb = getCatalog2JSONForDb();
-            String json = JSON.toJSONString(catalog2JSONForDb);
-            stringRedisTemplate.opsForValue().set("catalogJSON", json);
+            if (catalog2JSONForDb == null) {
+                stringRedisTemplate.opsForValue().set(key, "1", 5, TimeUnit.SECONDS);
+            } else {
+                String json = JSON.toJSONString(catalog2JSONForDb);
+                stringRedisTemplate.opsForValue().set(key, json, 10, TimeUnit.MINUTES);
+            }
             return catalog2JSONForDb;
         }
+        System.out.println("缓存命中了........");
         Map<String, List<Catalog2VO>> stringListMap = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catalog2VO>>>() {
         });
         return stringListMap;
@@ -149,40 +157,56 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return
      */
     public Map<String, List<Catalog2VO>> getCatalog2JSONForDb() {
-        if (cache.containsKey("getCatalog2JSON")) {
-            return cache.get("getCatalog2JSON");
-        }
-        // 获取所有的分类数据
-        List<CategoryEntity> list = baseMapper.selectList(new QueryWrapper<>());
-        // 获取所有的一级分类的数据
-        List<CategoryEntity> level1Category = this.queryByParentCid(list, 0L);
-        // 把一级分类的数据转换为Map容器 key就是一级分类的编号， value就是一级分类对应的二级分类的数据
-        Map<String, List<Catalog2VO>> map = level1Category.stream().collect(Collectors.toMap(key -> key.getCatId().toString(), value -> {
-            // 根据一级分类的编号，查询出对应的二级分类的数据
-            List<CategoryEntity> l2Catalogs = this.queryByParentCid(list, value.getCatId());
-            List<Catalog2VO> catalog2VOs = null;
-            if (l2Catalogs != null) {
-                catalog2VOs = l2Catalogs.stream().map(l2 -> {
-                    // 需要把查询出来的二级分类的数据填充到对应的Catalog2VO中
-                    Catalog2VO catalog2VO = new Catalog2VO(l2.getParentCid().toString(), null, l2.getCatId().toString(), l2.getName());
-                    // 根据二级分类的数据找到对应的三级分类的信息
-                    List<CategoryEntity> l3Catalogs = this.queryByParentCid(list, l2.getCatId());
-                    if (l3Catalogs != null) {
-                        // 获取到的二级分类对应的三级分类的数据
-                        List<Catalog2VO.Catalog3VO> catalog3VOS = l3Catalogs.stream().map(l3 -> {
-                            Catalog2VO.Catalog3VO catalog3VO = new Catalog2VO.Catalog3VO(l3.getParentCid().toString(), l3.getCatId().toString(), l3.getName());
-                            return catalog3VO;
-                        }).collect(Collectors.toList());
-                        // 三级分类关联二级分类
-                        catalog2VO.setCatalog3List(catalog3VOS);
-                    }
-                    return catalog2VO;
-                }).collect(Collectors.toList());
+        synchronized (this) {
+            /*if (cache.containsKey("getCatalog2JSON")) {
+                return cache.get("getCatalog2JSON");
+            }*/
+            String keys = "catalogJSON";
+            String catalogJSON = stringRedisTemplate.opsForValue().get(keys);
+            if (!StringUtils.isEmpty(catalogJSON)) {
+                Map<String, List<Catalog2VO>> stringListMap = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catalog2VO>>>() {
+                });
+                return stringListMap;
             }
-            return catalog2VOs;
-        }));
-        cache.put("getCatalog2JSON", map);
-        return map;
+            System.out.println("======>查询数据库操作");
+            // 获取所有的分类数据
+            List<CategoryEntity> list = baseMapper.selectList(new QueryWrapper<>());
+            // 获取所有的一级分类的数据
+            List<CategoryEntity> level1Category = this.queryByParentCid(list, 0L);
+            // 把一级分类的数据转换为Map容器 key就是一级分类的编号， value就是一级分类对应的二级分类的数据
+            Map<String, List<Catalog2VO>> map = level1Category.stream().collect(Collectors.toMap(key -> key.getCatId().toString(), value -> {
+                // 根据一级分类的编号，查询出对应的二级分类的数据
+                List<CategoryEntity> l2Catalogs = this.queryByParentCid(list, value.getCatId());
+                List<Catalog2VO> catalog2VOs = null;
+                if (l2Catalogs != null) {
+                    catalog2VOs = l2Catalogs.stream().map(l2 -> {
+                        // 需要把查询出来的二级分类的数据填充到对应的Catalog2VO中
+                        Catalog2VO catalog2VO = new Catalog2VO(l2.getParentCid().toString(), null, l2.getCatId().toString(), l2.getName());
+                        // 根据二级分类的数据找到对应的三级分类的信息
+                        List<CategoryEntity> l3Catalogs = this.queryByParentCid(list, l2.getCatId());
+                        if (l3Catalogs != null) {
+                            // 获取到的二级分类对应的三级分类的数据
+                            List<Catalog2VO.Catalog3VO> catalog3VOS = l3Catalogs.stream().map(l3 -> {
+                                Catalog2VO.Catalog3VO catalog3VO = new Catalog2VO.Catalog3VO(l3.getParentCid().toString(), l3.getCatId().toString(), l3.getName());
+                                return catalog3VO;
+                            }).collect(Collectors.toList());
+                            // 三级分类关联二级分类
+                            catalog2VO.setCatalog3List(catalog3VOS);
+                        }
+                        return catalog2VO;
+                    }).collect(Collectors.toList());
+                }
+                return catalog2VOs;
+            }));
+//            cache.put("getCatalog2JSON", map);
+            if (map == null) {
+                stringRedisTemplate.opsForValue().set(keys, "1", 5, TimeUnit.SECONDS);
+            } else {
+                String json = JSON.toJSONString(map);
+                stringRedisTemplate.opsForValue().set(keys, json, 10, TimeUnit.MINUTES);
+            }
+            return map;
+        }
     }
 
     /**
