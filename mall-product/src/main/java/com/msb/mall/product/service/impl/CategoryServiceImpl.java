@@ -6,6 +6,7 @@ import com.msb.mall.product.service.CategoryBrandRelationService;
 import com.msb.mall.product.vo.Catalog2VO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -153,22 +154,28 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         String keys = "catalogJSON";
         //加锁
         String uuid = UUID.randomUUID().toString();
-        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 30, TimeUnit.SECONDS);
+        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
         if (lock) {
-            //给对应的key设置过期时间
-            stringRedisTemplate.expire("lock", 20, TimeUnit.SECONDS);
-            //加锁成功
-            Map<String, List<Catalog2VO>> data = getDataForDB(keys);
-            String val = stringRedisTemplate.opsForValue().get("lock");
-            if (uuid.equals(val)) {
-                //释放锁
-                stringRedisTemplate.delete("lock");
+            Map<String, List<Catalog2VO>> data = null;
+            try {
+                //给对应的key设置过期时间
+                //stringRedisTemplate.expire("lock", 20, TimeUnit.SECONDS);
+                //加锁成功
+                data = getDataForDB(keys);
+            } finally {
+                /*String val = stringRedisTemplate.opsForValue().get("lock");
+                if (uuid.equals(val)) {
+                    //释放锁
+                    stringRedisTemplate.delete("lock");
+                }*/
+                String scripts = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
+                stringRedisTemplate.execute(new DefaultRedisScript<Integer>(scripts, Integer.class), Arrays.asList("lock"), uuid);
             }
             return data;
         } else {
             //加锁失败
             //休眠+重试
-//            Thread.sleep(1000);
+            //Thread.sleep(1000);
             return getCatalog2JSONDbWithRedisLock();
         }
     }
