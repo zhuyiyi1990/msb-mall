@@ -156,6 +156,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         String uuid = UUID.randomUUID().toString();
         Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 300, TimeUnit.SECONDS);
         if (lock) {
+            System.out.println("获取分布式锁成功......");
             Map<String, List<Catalog2VO>> data = null;
             try {
                 //给对应的key设置过期时间
@@ -169,13 +170,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
                     stringRedisTemplate.delete("lock");
                 }*/
                 String scripts = "if redis.call('get',KEYS[1]) == ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
-                stringRedisTemplate.execute(new DefaultRedisScript<Integer>(scripts, Integer.class), Arrays.asList("lock"), uuid);
+                stringRedisTemplate.execute(new DefaultRedisScript<>(scripts, Long.class), Arrays.asList("lock"), uuid);
             }
             return data;
         } else {
             //加锁失败
             //休眠+重试
-            //Thread.sleep(1000);
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("获取锁失败......");
             return getCatalog2JSONDbWithRedisLock();
         }
     }
