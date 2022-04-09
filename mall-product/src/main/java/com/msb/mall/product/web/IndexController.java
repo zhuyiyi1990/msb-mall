@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 public class IndexController {
@@ -42,7 +43,10 @@ public class IndexController {
     @GetMapping("/hello")
     public String hello() {
         RLock myLock = redissonClient.getLock("myLock");
-        myLock.lock();
+        //加锁
+//        myLock.lock();
+        //通过效果演示我们可以发现，指定了过期时间后那么自动续期就不会生效了，这时我们就需要注意设置的过期时间一定要满足我们的业务场景
+        myLock.lock(10, TimeUnit.SECONDS);
         try {
             System.out.println("加锁成功......业务处理......" + Thread.currentThread().getName());
             Thread.sleep(30000);
