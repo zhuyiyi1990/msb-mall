@@ -5,6 +5,7 @@ import com.msb.mall.product.entity.BrandEntity;
 import com.msb.mall.product.service.BrandService;
 import com.msb.mall.product.service.CategoryService;
 import org.junit.jupiter.api.Test;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -24,6 +25,9 @@ class MallProductApplicationTests {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
 
     @Test
     void contextLoads() {
@@ -64,6 +68,11 @@ class MallProductApplicationTests {
         ops.set("name", "bobo" + UUID.randomUUID());
         // 获取存储的信息
         System.out.println("刚刚保存的值：" + ops.get("name"));
+    }
+
+    @Test
+    public void testRedissonClient() {
+        System.out.println("redissonClient:" + redissonClient);
     }
 
 }
