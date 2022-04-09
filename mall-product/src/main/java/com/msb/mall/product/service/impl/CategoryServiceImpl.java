@@ -152,14 +152,18 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     public Map<String, List<Catalog2VO>> getCatalog2JSONDbWithRedisLock() {
         String keys = "catalogJSON";
         //加锁
-        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", "1111", 30, TimeUnit.SECONDS);
+        String uuid = UUID.randomUUID().toString();
+        Boolean lock = stringRedisTemplate.opsForValue().setIfAbsent("lock", uuid, 30, TimeUnit.SECONDS);
         if (lock) {
             //给对应的key设置过期时间
             stringRedisTemplate.expire("lock", 20, TimeUnit.SECONDS);
             //加锁成功
             Map<String, List<Catalog2VO>> data = getDataForDB(keys);
-            //释放锁
-            stringRedisTemplate.delete("lock");
+            String val = stringRedisTemplate.opsForValue().get("lock");
+            if (uuid.equals(val)) {
+                //释放锁
+                stringRedisTemplate.delete("lock");
+            }
             return data;
         } else {
             //加锁失败
