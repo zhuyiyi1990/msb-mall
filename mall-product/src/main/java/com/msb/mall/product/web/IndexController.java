@@ -72,6 +72,7 @@ public class IndexController {
         String s = null;
         rLock.lock();
         try {
+            System.out.println("加写锁成功......");
             s = UUID.randomUUID().toString();
             stringRedisTemplate.opsForValue().set("msg", s);
             Thread.sleep(30000);
@@ -83,6 +84,14 @@ public class IndexController {
         return s;
     }
 
+    /**
+     * 读 读 ： 相当于没有加锁
+     * 写 读 ： 需要等待写锁释放
+     * 写 写 ： 阻塞的方式
+     * 读 写 ： 读数据的时候也会添加锁，那么写的行为也会阻塞
+     *
+     * @return
+     */
     @GetMapping("/read")
     @ResponseBody
     public String readValue() {
@@ -91,7 +100,10 @@ public class IndexController {
         rLock.lock();
         String s = null;
         try {
+            System.out.println("加读锁成功......");
             s = stringRedisTemplate.opsForValue().get("msg");
+            Thread.sleep(30000);
+        } catch (Exception e) {
         } finally {
             rLock.unlock();
         }
