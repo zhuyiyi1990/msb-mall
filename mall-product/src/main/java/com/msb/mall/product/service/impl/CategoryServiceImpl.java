@@ -106,7 +106,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      * @return
      */
     @Override
-    @Cacheable({"category", "product"})
+    //@Cacheable(value = {"category", "product"}, key = "'level1Category'")
+    @Cacheable(value = {"category", "product"}, key = "#root.method.name")
     public List<CategoryEntity> getLevel1Category() {
         System.out.println("查询了数据库操作.....");
         long start = System.currentTimeMillis();
