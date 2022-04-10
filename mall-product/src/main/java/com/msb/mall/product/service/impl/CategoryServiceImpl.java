@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.msb.mall.product.service.CategoryBrandRelationService;
 import com.msb.mall.product.vo.Catalog2VO;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -33,6 +35,9 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -135,7 +140,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         String catalogJSON = stringRedisTemplate.opsForValue().get(key);
         if (StringUtils.isEmpty(catalogJSON)) {
             System.out.println("缓存没有命中......");
-            Map<String, List<Catalog2VO>> catalog2JSONForDb = getCatalog2JSONDbWithRedisLock();
+            Map<String, List<Catalog2VO>> catalog2JSONForDb = getCatalog2JSONDbWithRedisson();
             /*if (catalog2JSONForDb == null) {
                 stringRedisTemplate.opsForValue().set(key, "1", 5, TimeUnit.SECONDS);
             } else {
@@ -148,6 +153,20 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         Map<String, List<Catalog2VO>> stringListMap = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catalog2VO>>>() {
         });
         return stringListMap;
+    }
+
+    public Map<String, List<Catalog2VO>> getCatalog2JSONDbWithRedisson() {
+        String key = "catalogJSON";
+        RLock lock = redissonClient.getLock("catalog2JSON-lock");
+        Map<String, List<Catalog2VO>> data = null;
+        try {
+            lock.lock();
+            //加锁成功
+            data = getDataForDB(key);
+        } finally {
+            lock.unlock();
+        }
+        return data;
     }
 
     public Map<String, List<Catalog2VO>> getCatalog2JSONDbWithRedisLock() {
