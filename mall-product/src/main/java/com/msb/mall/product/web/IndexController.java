@@ -3,10 +3,7 @@ package com.msb.mall.product.web;
 import com.msb.mall.product.entity.CategoryEntity;
 import com.msb.mall.product.service.CategoryService;
 import com.msb.mall.product.vo.Catalog2VO;
-import org.redisson.api.RCountDownLatch;
-import org.redisson.api.RLock;
-import org.redisson.api.RReadWriteLock;
-import org.redisson.api.RedissonClient;
+import org.redisson.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
@@ -131,6 +128,28 @@ public class IndexController {
         RCountDownLatch door = redissonClient.getCountDownLatch("door");
         door.countDown();
         return id + "下班走人";
+    }
+
+    @GetMapping("/park")
+    @ResponseBody
+    public String park() {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        boolean b = true;
+        try {
+//            park.acquire();//获取信号 阻塞到获取成功
+            b = park.tryAcquire();//返回获取成功还是失败
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "停车是否成功:" + b;
+    }
+
+    @GetMapping("/release")
+    @ResponseBody
+    public String release() {
+        RSemaphore park = redissonClient.getSemaphore("park");
+        park.release();
+        return "释放了一个车位";
     }
 
 }
