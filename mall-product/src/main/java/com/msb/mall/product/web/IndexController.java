@@ -4,8 +4,10 @@ import com.msb.mall.product.entity.CategoryEntity;
 import com.msb.mall.product.service.CategoryService;
 import com.msb.mall.product.vo.Catalog2VO;
 import org.redisson.api.RLock;
+import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Controller
@@ -24,6 +27,9 @@ public class IndexController {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @GetMapping({"/", "/index.html", "/home", "/home.html"})
     public String index(Model model) {
@@ -56,6 +62,40 @@ public class IndexController {
             myLock.unlock();
         }
         return "hello";
+    }
+
+    @GetMapping("/write")
+    @ResponseBody
+    public String writeValue() {
+        RReadWriteLock readWriteLock = redissonClient.getReadWriteLock("rw-lock");
+        RLock rLock = readWriteLock.writeLock();
+        String s = null;
+        rLock.lock();
+        try {
+            s = UUID.randomUUID().toString();
+            stringRedisTemplate.opsForValue().set("msg", s);
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            rLock.unlock();
+        }
+        return s;
+    }
+
+    @GetMapping("/read")
+    @ResponseBody
+    public String readValue() {
+        RReadWriteLock readWriteLock = redissonClient.getReadWriteLock("rw-lock");
+        RLock rLock = readWriteLock.readLock();
+        rLock.lock();
+        String s = null;
+        try {
+            s = stringRedisTemplate.opsForValue().get("msg");
+        } finally {
+            rLock.unlock();
+        }
+        return s;
     }
 
 }
