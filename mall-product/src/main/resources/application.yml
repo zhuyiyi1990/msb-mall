@@ -21,7 +21,7 @@ spring:
     type: REDIS
     redis:
       time-to-live: 60000
-      key-prefix: bobo_
+#       key-prefix: bobo_
       use-key-prefix: true
       cache-null-values: true # 是否缓存空值，防止缓存穿透
 

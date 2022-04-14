@@ -7,6 +7,7 @@ import com.msb.mall.product.vo.Catalog2VO;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -90,6 +91,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     @Transactional
     @Override
+    @CacheEvict(value = "category", key = "'getLevel1Category'")
     public void updateDetail(CategoryEntity entity) {
         // 更新类别名称
         this.updateById(entity);
@@ -107,7 +109,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      */
     @Override
     //@Cacheable(value = {"category", "product"}, key = "'level1Category'")
-    @Cacheable(value = {"category", "product"}, key = "#root.method.name")
+    @Cacheable(value = "category", key = "#root.method.name")
     public List<CategoryEntity> getLevel1Category() {
         System.out.println("查询了数据库操作.....");
         long start = System.currentTimeMillis();
@@ -132,14 +134,35 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
 //    private Map<String, Map<String, List<Catalog2VO>>> cache = new HashMap<>();
 
+    @Override
+    public Map<String, List<Catalog2VO>> getCatalog2JSON() {
+        String key = "catalogJSON";
+        String catalogJSON = stringRedisTemplate.opsForValue().get(key);
+        if (StringUtils.isEmpty(catalogJSON)) {
+            System.out.println("缓存没有命中......");
+            Map<String, List<Catalog2VO>> catalog2JSONForDb = getCatalog2JSONDbWithRedisson();
+            /*if (catalog2JSONForDb == null) {
+                stringRedisTemplate.opsForValue().set(key, "1", 5, TimeUnit.SECONDS);
+            } else {
+                String json = JSON.toJSONString(catalog2JSONForDb);
+                stringRedisTemplate.opsForValue().set(key, json, 10, TimeUnit.MINUTES);
+            }*/
+            return catalog2JSONForDb;
+        }
+        System.out.println("缓存命中了........");
+        Map<String, List<Catalog2VO>> stringListMap = JSON.parseObject(catalogJSON, new TypeReference<Map<String, List<Catalog2VO>>>() {
+        });
+        return stringListMap;
+    }
+
     /**
      * 查询出所有的二级和三级分类的数据
      * 并封装为Map<String, Catalog2VO>对象
      *
      * @return
      */
-    @Override
-    public Map<String, List<Catalog2VO>> getCatalog2JSON() {
+    //@Override
+    public Map<String, List<Catalog2VO>> getCatalog2JSONRedis() {
         String key = "catalogJSON";
         String catalogJSON = stringRedisTemplate.opsForValue().get(key);
         if (StringUtils.isEmpty(catalogJSON)) {
