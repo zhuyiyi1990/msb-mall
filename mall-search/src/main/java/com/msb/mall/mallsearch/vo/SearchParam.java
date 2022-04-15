@@ -22,7 +22,7 @@ public class SearchParam {
     private String sort; // 排序条件
 
     // 查询的筛选条件  hasStock=0/1;
-    private Integer hasStock; // 是否只显示有货
+    private Integer hasStock = 1; // 是否只显示有货
 
     // brandId=1&brandId=2
     private List<Long> brandId; // 按照品牌来查询，可以多选

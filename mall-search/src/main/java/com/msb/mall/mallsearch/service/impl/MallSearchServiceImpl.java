@@ -1,14 +1,19 @@
 package com.msb.mall.mallsearch.service.impl;
 
 import com.msb.mall.mallsearch.config.MallElasticSearchConfiguration;
+import com.msb.mall.mallsearch.constant.ESConstant;
 import com.msb.mall.mallsearch.service.MallSearchService;
 import com.msb.mall.mallsearch.vo.SearchParam;
 import com.msb.mall.mallsearch.vo.SearchResult;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class MallSearchServiceImpl implements MallSearchService {
@@ -32,8 +37,45 @@ public class MallSearchServiceImpl implements MallSearchService {
         return result;
     }
 
+    /**
+     * 构建检索的请求
+     * 模糊匹配，关键字匹配
+     * 过滤(类别，品牌，属性，价格区间，库存)
+     * 排序
+     * 分页
+     * 高亮
+     * 聚合分析
+     *
+     * @param param
+     * @return
+     */
     private SearchRequest buildSearchRequest(SearchParam param) {
-        return null;
+        SearchRequest searchRequest = new SearchRequest();
+        searchRequest.indices(ESConstant.PRODUCT_INDEX);
+        SearchSourceBuilder sourceBuilder = new SearchSourceBuilder();
+        // 构建具体的检索的条件
+        // 1.构建bool查询
+        BoolQueryBuilder boolQuery = QueryBuilders.boolQuery();
+        // 1.1 关键字的条件
+        if (!StringUtils.isEmpty(param.getKeyword())) {
+            boolQuery.must(QueryBuilders.matchQuery("subTitle", param.getKeyword()));
+        }
+        // 1.2 类别的检索条件
+        if (param.getCatalog3Id() != null) {
+            boolQuery.filter(QueryBuilders.termQuery("catalogId", param.getCatalog3Id()));
+        }
+        // 1.3 品牌的检索条件
+        if (param.getBrandId() != null && param.getBrandId().size() > 0) {
+            boolQuery.filter(QueryBuilders.termsQuery("brandId", param.getBrandId()));
+        }
+        // 1.4 是否有库存
+        if (param.getHasStock() != null) {
+            boolQuery.filter(QueryBuilders.termQuery("hasStock", param.getHasStock() == 1));
+        }
+        // 1.5 根据价格区间来检索
+        sourceBuilder.query(boolQuery);
+        searchRequest.source(sourceBuilder);
+        return searchRequest;
     }
 
     private SearchResult buildSearchResult(SearchResponse response) {
