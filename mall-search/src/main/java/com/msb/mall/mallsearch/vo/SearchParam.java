@@ -1,10 +1,13 @@
 package com.msb.mall.mallsearch.vo;
 
+import lombok.Data;
+
 import java.util.List;
 
 /**
  * 封装页面所有可能提交的查询条件
  */
+@Data
 public class SearchParam {
 
     private String keyword; // 页面传递的查询全文匹配的关键字
