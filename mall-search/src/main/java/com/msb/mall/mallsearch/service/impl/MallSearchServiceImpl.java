@@ -10,6 +10,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -73,6 +74,26 @@ public class MallSearchServiceImpl implements MallSearchService {
             boolQuery.filter(QueryBuilders.termQuery("hasStock", param.getHasStock() == 1));
         }
         // 1.5 根据价格区间来检索
+        if (!StringUtils.isEmpty(param.getSkuPrice())) {
+            String[] msg = param.getSkuPrice().split("_");
+            RangeQueryBuilder skuPrice = QueryBuilders.rangeQuery("skuPrice");
+            if (msg.length == 2) {
+                // 说明是 200_300
+                skuPrice.gte(msg[0]);
+                skuPrice.lte(msg[1]);
+            } else if (msg.length == 1) {
+                // 说明是 _300  200_
+                if (param.getSkuPrice().endsWith("_")) {
+                    // 说明是 200_
+                    skuPrice.gte(msg[0]);
+                }
+                if (param.getSkuPrice().startsWith("_")) {
+                    // 说明是 _300
+                    skuPrice.lte(msg[0]);
+                }
+            }
+            boolQuery.filter(skuPrice);
+        }
         sourceBuilder.query(boolQuery);
         searchRequest.source(sourceBuilder);
         return searchRequest;
