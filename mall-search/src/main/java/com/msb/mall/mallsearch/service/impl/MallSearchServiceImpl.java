@@ -1,5 +1,7 @@
 package com.msb.mall.mallsearch.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.msb.common.dto.es.SkuESModel;
 import com.msb.mall.mallsearch.config.MallElasticSearchConfiguration;
 import com.msb.mall.mallsearch.constant.ESConstant;
 import com.msb.mall.mallsearch.service.MallSearchService;
@@ -13,6 +15,8 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
@@ -22,6 +26,9 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class MallSearchServiceImpl implements MallSearchService {
@@ -38,7 +45,7 @@ public class MallSearchServiceImpl implements MallSearchService {
             // 2.执行检索操作
             SearchResponse response = client.search(request, MallElasticSearchConfiguration.COMMON_OPTIONS);
             // 3.需要把检索的信息封装为SearchResult
-            result = buildSearchResult(response);
+            result = buildSearchResult(response, param);
         } catch (Exception e) {
 
         }
@@ -177,7 +184,36 @@ public class MallSearchServiceImpl implements MallSearchService {
         return searchRequest;
     }
 
-    private SearchResult buildSearchResult(SearchResponse response) {
+    /**
+     * 根据检索的结果解析封装为SearchResult对象
+     *
+     * @param response
+     * @return
+     */
+    private SearchResult buildSearchResult(SearchResponse response, SearchParam param) {
+        SearchResult result = new SearchResult();
+        SearchHits hits = response.getHits();
+        // 1.检索的所有商品信息
+        SearchHit[] products = hits.getHits();
+        List<SkuESModel> esModels = new ArrayList<>();
+        if (products != null && products.length > 0) {
+            for (SearchHit product : products) {
+                String sourceAsString = product.getSourceAsString();
+                // 把json格式的字符串通过fastjson转换为SkuESModel对象
+                SkuESModel model = JSON.parseObject(sourceAsString, SkuESModel.class);
+                esModels.add(model);
+            }
+        }
+        result.setProducts(esModels);
+        // 2.当前商品所涉及到的所有的品牌
+        // 3.当前商品涉及到的所有的类别信息
+        // 4.当前商品涉及到的所有的属性信息
+        // 5. 分页信息  当前页 总的记录数  总页数
+        long total = hits.getTotalHits().value;
+        result.setTotal(total);// 设置总记录数  6 /5  1+1
+        result.setPageNum(param.getPageNum()); // 设置当前页
+        long totalPage = total % ESConstant.PRODUCT_PAGESIZE == 0 ? total / ESConstant.PRODUCT_PAGESIZE : (total / ESConstant.PRODUCT_PAGESIZE + 1);
+        result.setTotalPages((int) totalPage); // 设置总的页数
         return null;
     }
 

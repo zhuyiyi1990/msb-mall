@@ -35,6 +35,6 @@ public class SearchParam {
     // 不同的属性  attrs:1_苹果:6.5寸
     private List<String> attrs; // 按照属性信息进行筛选
 
-    private Integer pageNum; // 页码
+    private Integer pageNum = 1; // 页码
 
 }
