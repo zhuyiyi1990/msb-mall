@@ -27,6 +27,7 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +35,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MallSearchServiceImpl implements MallSearchService {
@@ -206,6 +208,12 @@ public class MallSearchServiceImpl implements MallSearchService {
                 String sourceAsString = product.getSourceAsString();
                 // 把json格式的字符串通过fastjson转换为SkuESModel对象
                 SkuESModel model = JSON.parseObject(sourceAsString, SkuESModel.class);
+                if (!StringUtils.isEmpty(param.getKeyword())) {
+                    // 我们需要设置高亮
+                    HighlightField subTitle = product.getHighlightFields().get("subTitle");
+                    String subTitleHighlight = subTitle.getFragments()[0].string();
+                    model.setSubTitle(subTitleHighlight); // 设置高亮
+                }
                 esModels.add(model);
             }
         }
@@ -272,8 +280,11 @@ public class MallSearchServiceImpl implements MallSearchService {
                 attrVo.setAttrName(attrName);
                 ParsedStringTerms attr_value_agg = bucket.getAggregations().get("attr_value_agg");
                 if (attr_value_agg.getBuckets() != null && attr_value_agg.getBuckets().size() > 0) {
-                    String attrValues = attr_value_agg.getBuckets().get(0).getKeyAsString();
-                    System.out.println("attrValues = " + attrValues);
+                    List<String> values = attr_value_agg.getBuckets().stream().map(item -> {
+                        String keyAsString1 = item.getKeyAsString();
+                        return keyAsString1;
+                    }).collect(Collectors.toList());
+                    attrVo.setAttrValue(values);
                 }
                 attrVos.add(attrVo);
             }
@@ -285,7 +296,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         result.setPageNum(param.getPageNum()); // 设置当前页
         long totalPage = total % ESConstant.PRODUCT_PAGESIZE == 0 ? total / ESConstant.PRODUCT_PAGESIZE : (total / ESConstant.PRODUCT_PAGESIZE + 1);
         result.setTotalPages((int) totalPage); // 设置总的页数
-        return null;
+        return result;
     }
 
 }
