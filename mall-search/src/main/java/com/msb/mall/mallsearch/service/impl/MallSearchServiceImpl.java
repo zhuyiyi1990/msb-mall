@@ -20,6 +20,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.nested.ParsedNested;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -255,6 +256,29 @@ public class MallSearchServiceImpl implements MallSearchService {
         }
         result.setCatalogs(catalogVOS);
         // 4.当前商品涉及到的所有的属性信息
+        ParsedNested attr_agg = aggregations.get("attr_agg");
+        ParsedLongTerms attr_id_agg = attr_agg.getAggregations().get("attr_id_agg");
+        List<? extends Terms.Bucket> bucketsAttr = attr_id_agg.getBuckets();
+        List<SearchResult.AttrVo> attrVos = new ArrayList<>();
+        if (bucketsAttr != null && bucketsAttr.size() > 0) {
+            for (Terms.Bucket bucket : bucketsAttr) {
+                SearchResult.AttrVo attrVo = new SearchResult.AttrVo();
+                // 获取属性的编号
+                String keyAsString = bucket.getKeyAsString();
+                attrVo.setAttrId(Long.parseLong(keyAsString));
+                // 又得分别获取 属性的名称 和 属性的值
+                ParsedStringTerms attr_name_agg = bucket.getAggregations().get("attr_name_agg");
+                String attrName = attr_name_agg.getBuckets().get(0).getKeyAsString(); // 属性的名称
+                attrVo.setAttrName(attrName);
+                ParsedStringTerms attr_value_agg = bucket.getAggregations().get("attr_value_agg");
+                if (attr_value_agg.getBuckets() != null && attr_value_agg.getBuckets().size() > 0) {
+                    String attrValues = attr_value_agg.getBuckets().get(0).getKeyAsString();
+                    System.out.println("attrValues = " + attrValues);
+                }
+                attrVos.add(attrVo);
+            }
+        }
+        result.setAttrs(attrVos);
         // 5. 分页信息  当前页 总的记录数  总页数
         long total = hits.getTotalHits().value;
         result.setTotal(total);// 设置总记录数  6 /5  1+1
