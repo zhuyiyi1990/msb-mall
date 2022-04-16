@@ -5,10 +5,12 @@ import com.msb.mall.mallsearch.constant.ESConstant;
 import com.msb.mall.mallsearch.service.MallSearchService;
 import com.msb.mall.mallsearch.vo.SearchParam;
 import com.msb.mall.mallsearch.vo.SearchResult;
+import org.apache.lucene.search.join.ScoreMode;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.index.query.BoolQueryBuilder;
+import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -93,6 +95,23 @@ public class MallSearchServiceImpl implements MallSearchService {
                 }
             }
             boolQuery.filter(skuPrice);
+        }
+        // 1.6 属性的检索条件 attrs=20_8英寸:10英寸&attrs=19_64GB:32GB
+        if (param.getAttrs() != null && param.getAttrs().size() > 0) {
+            for (String attrStr : param.getAttrs()) {
+                BoolQueryBuilder boolNestedQuery = QueryBuilders.boolQuery();
+                // attrs=19_64GB:32GB 我们首先需要根据 _ 做分割
+                String[] attrStrArray = attrStr.split("_");
+                // 属性的编号
+                String attrId = attrStrArray[0];
+                // 64GB:32GB  获取属性的值
+                String[] values = attrStrArray[1].split(":");
+                // 拼接组合条件
+                boolNestedQuery.must(QueryBuilders.termQuery("attrs.attrId", attrId));
+                boolNestedQuery.must(QueryBuilders.termsQuery("attrs.attrValue", values));
+                NestedQueryBuilder nestedQuery = QueryBuilders.nestedQuery("attrs", boolNestedQuery, ScoreMode.None);
+                boolQuery.filter(nestedQuery);
+            }
         }
         sourceBuilder.query(boolQuery);
         searchRequest.source(sourceBuilder);
