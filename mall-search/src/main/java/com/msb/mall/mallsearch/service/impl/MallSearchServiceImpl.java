@@ -18,7 +18,11 @@ import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
+import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.nested.NestedAggregationBuilder;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedLongTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.ParsedStringTerms;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsAggregationBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
@@ -205,7 +209,33 @@ public class MallSearchServiceImpl implements MallSearchService {
             }
         }
         result.setProducts(esModels);
+        Aggregations aggregations = response.getAggregations();
         // 2.当前商品所涉及到的所有的品牌
+        ParsedLongTerms brand_agg = aggregations.get("brand_agg");
+        List<? extends Terms.Bucket> buckets = brand_agg.getBuckets();
+        // 存储所有品牌的容器
+        List<SearchResult.BrandVO> brandVOS = new ArrayList<>();
+        if (buckets != null && buckets.size() > 0) {
+            for (Terms.Bucket bucket : buckets) {
+                SearchResult.BrandVO brandVO = new SearchResult.BrandVO();
+                // 获取品牌的key
+                String keyAsString = bucket.getKeyAsString();
+                brandVO.setBrandId(Long.parseLong(keyAsString)); // 设置品牌的编号
+                // 然后我们需要获取品牌的名称和图片的地址
+                ParsedStringTerms brand_img_agg = bucket.getAggregations().get("brand_img_agg");
+                List<? extends Terms.Bucket> bucketsImg = brand_img_agg.getBuckets();
+                if (bucketsImg != null && bucketsImg.size() > 0) {
+                    String img = bucketsImg.get(0).getKeyAsString();
+                    brandVO.setBrandImg(img);
+                }
+                // 获取品牌名称的信息
+                ParsedStringTerms brand_name_agg = bucket.getAggregations().get("brand_name_agg");
+                String brandName = brand_name_agg.getBuckets().get(0).getKeyAsString();
+                brandVO.setBrandName(brandName);
+                brandVOS.add(brandVO);
+            }
+        }
+        result.setBrands(brandVOS);
         // 3.当前商品涉及到的所有的类别信息
         // 4.当前商品涉及到的所有的属性信息
         // 5. 分页信息  当前页 总的记录数  总页数
