@@ -237,6 +237,23 @@ public class MallSearchServiceImpl implements MallSearchService {
         }
         result.setBrands(brandVOS);
         // 3.当前商品涉及到的所有的类别信息
+        ParsedLongTerms catalog_agg = aggregations.get("catalog_agg");
+        List<? extends Terms.Bucket> bucketsCatalogs = catalog_agg.getBuckets();
+        // 创建一个保存所有类别的容器
+        List<SearchResult.CatalogVO> catalogVOS = new ArrayList<>();
+        if (bucketsCatalogs != null && bucketsCatalogs.size() > 0) {
+            for (Terms.Bucket bucket : bucketsCatalogs) {
+                SearchResult.CatalogVO catalogVO = new SearchResult.CatalogVO();
+                String keyAsString = bucket.getKeyAsString(); // 获取类别的编号
+                catalogVO.setCatalogId(Long.parseLong(keyAsString));
+                // 获取类别的名称
+                ParsedStringTerms catalog_name_agg = bucket.getAggregations().get("catalog_name_agg");
+                String catalogName = catalog_name_agg.getBuckets().get(0).getKeyAsString();
+                catalogVO.setCatalogName(catalogName);
+                catalogVOS.add(catalogVO);
+            }
+        }
+        result.setCatalogs(catalogVOS);
         // 4.当前商品涉及到的所有的属性信息
         // 5. 分页信息  当前页 总的记录数  总页数
         long total = hits.getTotalHits().value;
