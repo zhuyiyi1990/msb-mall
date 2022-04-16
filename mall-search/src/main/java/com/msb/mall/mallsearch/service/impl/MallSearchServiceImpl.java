@@ -142,6 +142,7 @@ public class MallSearchServiceImpl implements MallSearchService {
             highlightBuilder.postTags("</b>");
             sourceBuilder.highlighter(highlightBuilder);
         }
+        System.out.println(sourceBuilder.toString());
         searchRequest.source(sourceBuilder);
         return searchRequest;
     }
