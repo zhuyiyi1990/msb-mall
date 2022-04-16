@@ -14,6 +14,8 @@ import org.elasticsearch.index.query.NestedQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.RangeQueryBuilder;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -114,6 +116,32 @@ public class MallSearchServiceImpl implements MallSearchService {
             }
         }
         sourceBuilder.query(boolQuery);
+        // 2.排序
+        if (!StringUtils.isEmpty(param.getSort())) {
+            // sort=saleCount_asc/desc
+            String[] s = param.getSort().split("_");
+            SortOrder order = s[1].equalsIgnoreCase("asc") ? SortOrder.ASC : SortOrder.DESC;
+            sourceBuilder.sort(s[0], order);
+        }
+        // 3.处理分页
+        // Integer pageNum; // 页码
+        if (param.getPageNum() != null) {
+            // 需要做分页处理 pageSize = 5
+            // pageNum:1 from:0  [0,1,2,3,4]
+            // pageNum:2 from:5 [5,6,7,8,9]
+            // from = ( pageNum - 1 ) * pageSize
+            sourceBuilder.from((param.getPageNum() - 1) * ESConstant.PRODUCT_PAGESIZE);
+            sourceBuilder.size(ESConstant.PRODUCT_PAGESIZE);
+        }
+        // 4. 设置高亮
+        if (!StringUtils.isEmpty(param.getKeyword())) {
+            // 如果有根据关键字查询那么我们才需要高亮设置
+            HighlightBuilder highlightBuilder = new HighlightBuilder();
+            highlightBuilder.field("subTitle");
+            highlightBuilder.preTags("<b style='color:red'>");
+            highlightBuilder.postTags("</b>");
+            sourceBuilder.highlighter(highlightBuilder);
+        }
         searchRequest.source(sourceBuilder);
         return searchRequest;
     }
