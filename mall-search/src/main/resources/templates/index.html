@@ -1017,12 +1017,20 @@
                 <div class="filter">
                     <!--综合排序-->
                     <div class="filter_top">
-                        <div class="filter_top_left">
+                        <div class="filter_top_left" th:with="priceRange=${param.skuPrice}">
                             <a href="#">综合排序</a>
                             <a href="#">销量</a>
                             <a href="#">价格</a>
                             <a href="#">评论分</a>
-                            <a href="#">上架时间</a>
+                            <a href="#">上架时间[[${priceRange}]] </a>
+                            <!-- skuPrice=3000_5000 -->
+                            <input id="skuPriceFrom" th:value="${#strings.isEmpty(priceRange)?'':#strings.substringBefore(priceRange,'_')}"
+                                   style="margin-left: 40px;" type="number">
+                            -
+                            <input id="skuPriceTo" th:value="${#strings.isEmpty(priceRange)?'':#strings.substringAfter(priceRange,'_')}"
+                                   type="number">
+                            <input type="button"
+                                   id="skuPriceSearchBtn" value="查询">
                         </div>
                         <div class="filter_top_right">
                             <span class="fp-text">
@@ -1985,7 +1993,7 @@
                 // 说明有pageNum
                 location.href = replaceParamVal(href,"pageNum",pn);
             }else{
-                location.href = href;
+                location.href = href + "&pageNum=" + pn;
             }
         }else{
             location.href = location.href +  "?pageNum=" + pn;
@@ -2001,6 +2009,25 @@
         return nUrl;
 
     }
+
+    $("#skuPriceSearchBtn").click(function(){
+        var from = $("#skuPriceFrom").val();
+        var to = $("#skuPriceTo").val();
+        // 200_300
+        var msg = from + "_" + to;
+        var href = location.href;
+        if(href.indexOf("?") != -1){
+            //href = location.href +  "&pageNum=" + pn;
+            if(href.indexOf("skuPrice") != -1){
+                // 说明有pageNum
+                location.href = replaceParamVal(href,"skuPrice",msg);
+            }else{
+                location.href = href + "&skuPrice=" + msg;
+            }
+        }else{
+            location.href = location.href +  "?skuPrice=" + msg;
+        }
+    });
 </script>
 </body>
 </html>
