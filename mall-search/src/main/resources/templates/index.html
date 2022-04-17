@@ -1138,8 +1138,8 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a href="#">
-                                        <i></i>
+                                    <a href="#" th:with="check=${param.hasStock}">
+                                        <input type="checkbox" id="showHasStock" th:checked="${#strings.equals(check,1)}">
                                         仅显示有货
                                     </a>
                                 </li>
@@ -2028,6 +2028,28 @@
             location.href = location.href +  "?skuPrice=" + msg;
         }
     });
+
+    $("#showHasStock").change(function(){
+        var hasStock = 0
+        if($(this).prop("checked")){
+            // 表示选中  查询有货的商品
+            hasStock = 1;
+        }
+        var href = location.href;
+        if(href.indexOf("?") != -1){
+            if(href.indexOf("hasStock") != -1){
+                // 说明有pageNum
+                location.href = replaceParamVal(href,"hasStock",hasStock);
+            }else{
+                location.href = href + "&hasStock=" + hasStock;
+            }
+        }else{
+            location.href = location.href +  "?hasStock=" + hasStock;
+        }
+
+        return false;
+    })
+
 </script>
 </body>
 </html>
