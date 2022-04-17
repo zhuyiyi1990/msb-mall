@@ -402,8 +402,8 @@
         <a href="http://msb.mall.com"><img src="/static/search/image/logo1.jpg" alt=""></a>
     </div>
     <div class="header_form">
-        <input type="text" placeholder="手机" />
-        <a href="#">搜索</a>
+        <input id="keyword_input" type="text" placeholder="手机" th:value="${param.keyword}"/>
+        <a href="javascript:searchByKeyword();">搜索</a>
     </div>
     <div class="header_ico">
         <div class="header_gw">
@@ -1964,6 +1964,10 @@
             location.href = location.href + "?"+name+"=" +value;
         }
 
+    }
+
+    function searchByKeyword(){
+        searchProduct("keyword",$("#keyword_input").val());
     }
 </script>
 </body>
