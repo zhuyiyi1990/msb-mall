@@ -186,7 +186,7 @@ public class MallSearchServiceImpl implements MallSearchService {
         attr_id_agg.subAggregation(AggregationBuilders.terms("attr_value_agg").field("attrs.attrValue").size(10));
         attr_agg.subAggregation(attr_id_agg);
         sourceBuilder.aggregation(attr_agg);
-        System.out.println(sourceBuilder.toString());
+        System.out.println("--->" + sourceBuilder.toString());
         searchRequest.source(sourceBuilder);
         return searchRequest;
     }

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
@@ -785,7 +785,7 @@
                         <div class="sl_value_logo">
                             <ul>
                                 <li th:each="brand: ${result.brands}">
-                                    <a href="#">
+                                    <a th:href="${'javascript:searchProduct(&quot;brandId&quot;,'+brand.brandId+')'}">
                                         <img th:src="${brand.brandImg}" alt="">
                                         <div th:text="${brand.brandName}">
                                             华为(HUAWEI)
@@ -816,7 +816,12 @@
                     </div>
                     <div class="sl_value">
                         <ul>
-                            <li th:each="catalog:${result.catalogs}"><a href="#" th:text="${catalog.catalogName}">0-499</a></li>
+                            <li th:each="catalog:${result.catalogs}">
+                                <a th:href="${'javascript:searchProduct(&quot;catalog3Id&quot;,'+catalog.catalogId+')'}"
+                                   th:text="${catalog.catalogName}">
+                                    0-499
+                                </a>
+                            </li>
 
                         </ul>
                     </div>
@@ -1947,6 +1952,17 @@
     },function(){
         $(this).css("color","#727272")
     })
+
+    function searchProduct(name,value){
+        var href = location.href;
+        if(href.indexOf("?") != -1){
+            // 说明有?号了
+            location.href = location.href + "&"+name+"=" +value;
+        }else{
+            location.href = location.href + "?"+name+"=" +value;
+        }
+
+    }
 </script>
 </body>
 </html>
