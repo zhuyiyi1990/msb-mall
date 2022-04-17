@@ -242,6 +242,7 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             BeanUtils.copyProperties(item, model);
             model.setSubTitle(item.getSkuTitle());
             model.setSkuPrice(item.getPrice());
+            model.setSkuImg(item.getSkuDefaultImg());
             if (skusHasStockMap == null) {
                 model.setHasStock(false);
             } else {
