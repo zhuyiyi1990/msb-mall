@@ -1189,20 +1189,25 @@
                                 </div>
                             </div>
                         </div>
+
                     </div>
+
                     <!--分页-->
                     <div class="filter_page">
                         <div class="page_wrap">
                             <span class="page_span1">
-                                <a href="#">
+                                <a href="#" th:if="${result.pageNum > 1}">
                                     < 上一页
                                 </a>
-                                <a href="#" style="border: 0;color:#ee2222;background: #fff">1</a>
-                                <a href="#">2</a>
+                                <a href="#" th:each="nav:${result.navs}"
+                                   th:style="${nav==result.pageNum?'border: 0;color:#ee2222;background: #fff':''}"
+                                >[[${nav}]]
+                                </a>
+                                <!--<a href="#">2</a>
                                 <a href="#">3</a>
                                 <a href="#" style="border: 0;font-size: 20px;color: #999;background: #fff">...</a>
-                                <a href="#">169</a>
-                                <a href="#">
+                                <a href="#">169</a>-->
+                                <a href="#" th:if="${result.pageNum < result.totalPages}">
                                     下一页 >
                                 </a>
                             </span>

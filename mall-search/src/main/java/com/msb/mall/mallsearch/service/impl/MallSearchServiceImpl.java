@@ -296,6 +296,11 @@ public class MallSearchServiceImpl implements MallSearchService {
         result.setPageNum(param.getPageNum()); // 设置当前页
         long totalPage = total % ESConstant.PRODUCT_PAGESIZE == 0 ? total / ESConstant.PRODUCT_PAGESIZE : (total / ESConstant.PRODUCT_PAGESIZE + 1);
         result.setTotalPages((int) totalPage); // 设置总的页数
+        List<Integer> navs = new ArrayList<>();
+        for (int i = 1; i <= totalPage; i++) {
+            navs.add(i);
+        }
+        result.setNavs(navs);
         return result;
     }
 
