@@ -833,8 +833,10 @@
                     </div>
                     <div class="sl_value">
                         <ul>
-                            <li th:each="val : ${attr.attrValue}"><a href="#" th:text="${val}">0-安卓（Android）</a></li>
-
+                            <li th:each="val : ${attr.attrValue}">
+                                <a th:href="${'javascript:searchProduct(&quot;attrs&quot;,&quot;'+attr.attrId+ '_'+val+'&quot;)'}"
+                                   th:text="${val}">0-安卓（Android）</a>
+                            </li>
                         </ul>
                     </div>
                 </div>
