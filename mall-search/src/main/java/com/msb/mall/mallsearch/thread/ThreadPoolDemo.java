@@ -12,6 +12,9 @@ public class ThreadPoolDemo {
     public static void main(String[] args) {
         // 第一种获取的方式
         ExecutorService service = Executors.newFixedThreadPool(10);
+        // Executors.newCachedThreadPool()
+        // Executors.newScheduledThreadPool() 定时任务的线程池
+        // Executors.newSingleThreadExecutor(); // 线程池中永远只有一个线程去处理，并发的情况下会被变为同步的处理
 
         // 第二种方式： 直接new ThreadPoolExecutor()对象，并且手动的指定对应的参数
         // corePoolSize:线程池的核心线程数量 线程池创建出来后就会 new Thread() 5个
