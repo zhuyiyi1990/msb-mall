@@ -1,0 +1,165 @@
+DELETE /mall_product
+
+PUT /mall_product
+{
+  "settings": {
+    "number_of_shards": 1,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "brandId" : {
+        "type" : "long"
+      },
+      "brandImg" : {
+        "type" : "keyword"
+      },
+      "brandName" : {
+        "type" : "keyword"
+      },
+      "catalogId" : {
+        "type" : "long"
+      },
+      "catalogName" : {
+        "type" : "keyword"
+      },
+      "hasStock" : {
+        "type" : "boolean"
+      },
+      "hotScore" : {
+        "type" : "long"
+      },
+      "saleCount" : {
+        "type" : "long"
+      },
+      "skuId" : {
+        "type" : "long"
+      },
+      "skuPrice" : {
+        "type" : "float"
+      },
+      "spuId" : {
+        "type" : "long"
+      },
+      "subTitle" : {
+        "type" : "text",
+        "fields" : {
+          "keyword" : {
+            "type" : "keyword",
+            "ignore_above" : 256
+          }
+        }
+      }
+    }
+  }
+}
+
+POST /mall_product/_doc/1
+{
+          "skuId" : 1,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 5 土豪金",
+          "skuPrice" : 3499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+POST /mall_product/_doc/2
+{
+          "skuId" : 2,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 5 灰色",
+          "skuPrice" : 3499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+POST /mall_product/_doc/3
+{
+          "skuId" : 3,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 5 粉色",
+          "skuPrice" : 3499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+POST /mall_product/_doc/4
+{
+          "skuId" : 4,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 6 土豪金",
+          "skuPrice" : 4499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+POST /mall_product/_doc/5
+{
+          "skuId" : 5,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 6 灰色",
+          "skuPrice" : 4499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+POST /mall_product/_doc/6
+{
+          "skuId" : 6,
+          "spuId" : 1,
+          "subTitle" : "iPhone SE (3rd) 6 粉色",
+          "skuPrice" : 4499.0,
+          "skuImg" : null,
+          "saleCount" : 0,
+          "hasStock" : true,
+          "hotScore" : 0,
+          "brandId" : 12,
+          "catalogId" : 225,
+          "brandName" : "华为",
+          "brandImg" : "",
+          "catalogName" : "手机",
+          "attrs" : [ ]
+}
+
+GET /mall_product/_search
