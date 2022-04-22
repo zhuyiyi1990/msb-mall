@@ -1,0 +1,34 @@
+package com.msb.mall.mallsearch.thread;
+
+import java.util.concurrent.*;
+
+public class CompletableFutureDemo {
+
+    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(5
+            , 50
+            , 10
+            , TimeUnit.SECONDS
+            , new LinkedBlockingQueue<>(100)
+            , Executors.defaultThreadFactory()
+            , new ThreadPoolExecutor.AbortPolicy()
+    );
+
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        System.out.println("main -- 线程开始了...");
+        CompletableFuture<Void> voidCompletableFuture = CompletableFuture.runAsync(() -> {
+            System.out.println("线程开始了...");
+            int i = 100 / 50;
+            System.out.println("线程结束了...");
+        }, executor);
+        System.out.println("main -- 线程结束了...");
+        System.out.println("--------------");
+        CompletableFuture<Integer> future = CompletableFuture.supplyAsync(() -> {
+            System.out.println("线程开始了...");
+            int i = 100 / 50;
+            System.out.println("线程结束了...");
+            return i;
+        }, executor);
+        System.out.println("获取的线程的返回结果是：" + future.get());
+    }
+
+}
