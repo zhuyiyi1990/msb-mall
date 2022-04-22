@@ -28,6 +28,7 @@ public class CompletableFutureDemo {
             System.out.println("线程结束了...");
             return i;
         }, executor);
+        // 可以处理异步任务之后的操作
         System.out.println("获取的线程的返回结果是：" + future.get());
     }
 
