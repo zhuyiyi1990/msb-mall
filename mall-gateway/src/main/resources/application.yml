@@ -37,11 +37,15 @@ spring:
             - Path=/app/**
           filters:
             - RewritePath=/app/(?<segment>/?.*),/renren-fast/$\{segment}
-        - id: msbmall_host_route
+        - id: msbmall_host_route1
           uri: lb://mall-product
           predicates:
             - Host=msb.mall.com
-        - id: msbmall_host_route
+        - id: msbmall_host_route2
+          uri: lb://mall-product
+          predicates:
+            - Host=msb.item.com
+        - id: msbmall_host_route3
           uri: lb://mall-search
           predicates:
             - Host=msb.search.com
