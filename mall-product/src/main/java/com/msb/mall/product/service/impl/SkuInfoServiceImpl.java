@@ -2,6 +2,7 @@ package com.msb.mall.product.service.impl;
 
 import com.msb.mall.product.entity.SkuImagesEntity;
 import com.msb.mall.product.entity.SpuInfoDescEntity;
+import com.msb.mall.product.service.AttrGroupService;
 import com.msb.mall.product.service.SkuImagesService;
 import com.msb.mall.product.service.SpuInfoDescService;
 import com.msb.mall.product.vo.ItemVO;
@@ -31,6 +32,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     SpuInfoDescService spuInfoDescService;
+
+    @Autowired
+    AttrGroupService attrGroupService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -86,7 +90,10 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         // 1.sku的基本信息 pms_sku_info
         SkuInfoEntity skuInfoEntity = getById(skuId);
         vo.setInfo(skuInfoEntity);
+        // 获取对应的SPUID
         Long spuId = skuInfoEntity.getSpuId();
+        // 获取对应的CatalogId 类别编号
+        Long catalogId = skuInfoEntity.getCatalogId();
         // 2.sku的图片信息pms_sku_images
         List<SkuImagesEntity> images = skuImagesService.getImagesBySkuId(skuId);
         vo.setImages(images);
@@ -95,6 +102,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(spuId);
         vo.setDesc(spuInfoDescEntity);
         // 5.获取SPU的规格参数
+        List<ItemVO.SpuItemGroupAttrVo> groupAttrVo = attrGroupService.getAttrgroupWithSpuId(spuId, catalogId);
+        vo.setBaseAttrs(groupAttrVo);
         return null;
     }
 

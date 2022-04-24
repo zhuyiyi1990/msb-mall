@@ -13,4 +13,6 @@
         <result property="catalogId" column="catalog_id"/>
     </resultMap>
 
+    <select id="getAttrgroupWithSpuId" resultType="com.msb.mall.product.vo.ItemVO.SpuItemGroupAttrVo"></select>
+
 </mapper>

@@ -21,7 +21,7 @@ public class ItemVO {
     // 4.获取SPU的介绍
     SpuInfoDescEntity desc;
     // 5.获取SPU的规格参数
-    SpuItemGroupAttrVo baseAttrs;
+    List<SpuItemGroupAttrVo> baseAttrs;
 
     @Data
     public static class SkuItemSaleAttrVo {
