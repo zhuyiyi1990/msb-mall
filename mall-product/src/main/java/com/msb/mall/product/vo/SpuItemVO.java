@@ -14,6 +14,7 @@ import java.util.List;
 public class SpuItemVO {
     // 1.sku的基本信息 pms_sku_info
     SkuInfoEntity info;
+    boolean hasStock = true; // 是否有库存
     // 2.sku的图片信息pms_sku_images
     List<SkuImagesEntity> images;
     // 3.获取spu中的销售属性的组合
