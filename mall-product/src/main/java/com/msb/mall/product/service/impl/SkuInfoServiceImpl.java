@@ -5,7 +5,8 @@ import com.msb.mall.product.entity.SpuInfoDescEntity;
 import com.msb.mall.product.service.AttrGroupService;
 import com.msb.mall.product.service.SkuImagesService;
 import com.msb.mall.product.service.SpuInfoDescService;
-import com.msb.mall.product.vo.ItemVO;
+import com.msb.mall.product.vo.SpuItemGroupAttrVo;
+import com.msb.mall.product.vo.SpuItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -85,8 +86,8 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     }
 
     @Override
-    public ItemVO item(Long skuId) {
-        ItemVO vo = new ItemVO();
+    public SpuItemVO item(Long skuId) {
+        SpuItemVO vo = new SpuItemVO();
         // 1.sku的基本信息 pms_sku_info
         SkuInfoEntity skuInfoEntity = getById(skuId);
         vo.setInfo(skuInfoEntity);
@@ -102,7 +103,7 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(spuId);
         vo.setDesc(spuInfoDescEntity);
         // 5.获取SPU的规格参数
-        List<ItemVO.SpuItemGroupAttrVo> groupAttrVo = attrGroupService.getAttrgroupWithSpuId(spuId, catalogId);
+        List<SpuItemGroupAttrVo> groupAttrVo = attrGroupService.getAttrgroupWithSpuId(spuId, catalogId);
         vo.setBaseAttrs(groupAttrVo);
         return null;
     }

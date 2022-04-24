@@ -2,8 +2,10 @@ package com.msb.mall.product;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.msb.mall.product.entity.BrandEntity;
+import com.msb.mall.product.service.AttrGroupService;
 import com.msb.mall.product.service.BrandService;
 import com.msb.mall.product.service.CategoryService;
+import com.msb.mall.product.vo.SpuItemGroupAttrVo;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +30,9 @@ class MallProductApplicationTests {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Autowired
+    AttrGroupService attrGroupService;
 
     @Test
     void contextLoads() {
@@ -73,6 +78,14 @@ class MallProductApplicationTests {
     @Test
     public void testRedissonClient() {
         System.out.println("redissonClient:" + redissonClient);
+    }
+
+    @Test
+    public void test2() {
+        List<SpuItemGroupAttrVo> attrgroupWithSpuId = attrGroupService.getAttrgroupWithSpuId(6L, 225L);
+        for (SpuItemGroupAttrVo spuItemGroupAttrVo : attrgroupWithSpuId) {
+            System.out.println(spuItemGroupAttrVo);
+        }
     }
 
 }

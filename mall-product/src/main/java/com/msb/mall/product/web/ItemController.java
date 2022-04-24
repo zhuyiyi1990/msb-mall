@@ -1,7 +1,7 @@
 package com.msb.mall.product.web;
 
 import com.msb.mall.product.service.SkuInfoService;
-import com.msb.mall.product.vo.ItemVO;
+import com.msb.mall.product.vo.SpuItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +15,7 @@ public class ItemController {
 
     @GetMapping("/{skuId}.html")
     public String item(@PathVariable Long skuId) {
-        ItemVO itemVO = skuInfoService.item(skuId);
+        SpuItemVO itemVO = skuInfoService.item(skuId);
         return "item";
     }
 

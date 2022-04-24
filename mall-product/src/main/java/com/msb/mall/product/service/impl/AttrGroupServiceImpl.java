@@ -3,7 +3,7 @@ package com.msb.mall.product.service.impl;
 import com.msb.mall.product.entity.AttrEntity;
 import com.msb.mall.product.service.AttrService;
 import com.msb.mall.product.vo.AttrGroupWithAttrsVo;
-import com.msb.mall.product.vo.ItemVO;
+import com.msb.mall.product.vo.SpuItemGroupAttrVo;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -77,8 +77,8 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
      * @return
      */
     @Override
-    public List<ItemVO.SpuItemGroupAttrVo> getAttrgroupWithSpuId(Long spuId, Long catalogId) {
-        List<ItemVO.SpuItemGroupAttrVo> groupAttrVo = attrGroupDao.getAttrgroupWithSpuId(spuId, catalogId);
+    public List<SpuItemGroupAttrVo> getAttrgroupWithSpuId(Long spuId, Long catalogId) {
+        List<SpuItemGroupAttrVo> groupAttrVo = attrGroupDao.getAttrgroupWithSpuId(spuId, catalogId);
         return groupAttrVo;
     }
 
