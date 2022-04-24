@@ -5,6 +5,8 @@ import com.msb.mall.product.entity.BrandEntity;
 import com.msb.mall.product.service.AttrGroupService;
 import com.msb.mall.product.service.BrandService;
 import com.msb.mall.product.service.CategoryService;
+import com.msb.mall.product.service.SkuSaleAttrValueService;
+import com.msb.mall.product.vo.SkuItemSaleAttrVo;
 import com.msb.mall.product.vo.SpuItemGroupAttrVo;
 import org.junit.jupiter.api.Test;
 import org.redisson.api.RedissonClient;
@@ -33,6 +35,9 @@ class MallProductApplicationTests {
 
     @Autowired
     AttrGroupService attrGroupService;
+
+    @Autowired
+    SkuSaleAttrValueService skuSaleAttrValueService;
 
     @Test
     void contextLoads() {
@@ -85,6 +90,14 @@ class MallProductApplicationTests {
         List<SpuItemGroupAttrVo> attrgroupWithSpuId = attrGroupService.getAttrgroupWithSpuId(6L, 225L);
         for (SpuItemGroupAttrVo spuItemGroupAttrVo : attrgroupWithSpuId) {
             System.out.println(spuItemGroupAttrVo);
+        }
+    }
+
+    @Test
+    public void test3() {
+        List<SkuItemSaleAttrVo> skuSaleAttrValueBySpuId = skuSaleAttrValueService.getSkuSaleAttrValueBySpuId(6L);
+        for (SkuItemSaleAttrVo skuItemSaleAttrVo : skuSaleAttrValueBySpuId) {
+            System.out.println(skuItemSaleAttrVo);
         }
     }
 

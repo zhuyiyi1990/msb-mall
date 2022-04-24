@@ -2,9 +2,8 @@ package com.msb.mall.product.service.impl;
 
 import com.msb.mall.product.entity.SkuImagesEntity;
 import com.msb.mall.product.entity.SpuInfoDescEntity;
-import com.msb.mall.product.service.AttrGroupService;
-import com.msb.mall.product.service.SkuImagesService;
-import com.msb.mall.product.service.SpuInfoDescService;
+import com.msb.mall.product.service.*;
+import com.msb.mall.product.vo.SkuItemSaleAttrVo;
 import com.msb.mall.product.vo.SpuItemGroupAttrVo;
 import com.msb.mall.product.vo.SpuItemVO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +21,6 @@ import com.msb.common.utils.Query;
 
 import com.msb.mall.product.dao.SkuInfoDao;
 import com.msb.mall.product.entity.SkuInfoEntity;
-import com.msb.mall.product.service.SkuInfoService;
 import org.springframework.util.StringUtils;
 
 @Service("skuInfoService")
@@ -36,6 +34,9 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
 
     @Autowired
     AttrGroupService attrGroupService;
+
+    @Autowired
+    SkuSaleAttrValueService skuSaleAttrValueService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -99,13 +100,15 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
         List<SkuImagesEntity> images = skuImagesService.getImagesBySkuId(skuId);
         vo.setImages(images);
         // 3.获取spu中的销售属性的组合
+        List<SkuItemSaleAttrVo> saleAttrs = skuSaleAttrValueService.getSkuSaleAttrValueBySpuId(spuId);
+        vo.setSaleAttrs(saleAttrs);
         // 4.获取SPU的介绍
         SpuInfoDescEntity spuInfoDescEntity = spuInfoDescService.getById(spuId);
         vo.setDesc(spuInfoDescEntity);
         // 5.获取SPU的规格参数
         List<SpuItemGroupAttrVo> groupAttrVo = attrGroupService.getAttrgroupWithSpuId(spuId, catalogId);
         vo.setBaseAttrs(groupAttrVo);
-        return null;
+        return vo;
     }
 
 }
