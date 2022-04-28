@@ -10,7 +10,7 @@
     <artifactId>mall-search</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>mall-search</name>
-    <description>Demo project for Spring Boot</description>
+    <description>检索服务</description>
     <properties>
         <java.version>1.8</java.version>
     </properties>
