@@ -49,5 +49,9 @@ spring:
           uri: lb://mall-search
           predicates:
             - Host=msb.search.com
+        - id: msbmall_host_route4
+          uri: lb://mall-auth
+          predicates:
+            - Host=msb.auth.com
 server:
   port: 8070

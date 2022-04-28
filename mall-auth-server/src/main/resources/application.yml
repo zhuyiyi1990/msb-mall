@@ -5,7 +5,7 @@ spring:
       discovery:
         server-addr: 192.168.248.100:8848
   application:
-    name: mall-auth_server
+    name: mall-auth
   # \u7EDF\u4E00\u7684\u5168\u5C40\u7684--\u8BBE\u7F6E\u670D\u52A1\u5668\u54CD\u5E94\u7ED9\u5BA2\u6237\u7AEF\u7684\u65E5\u671F\u65F6\u95F4\u683C\u5F0F
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
