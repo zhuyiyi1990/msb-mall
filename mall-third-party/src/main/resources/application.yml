@@ -9,6 +9,11 @@ spring:
       oss:
         endpoint: '***'
         bucket: mashibing-mall
+      sms:
+        host: https://dfsns.market.alicloudapi.com
+        path: /data/send_sms
+        method: POST
+        appCode: 52b846ac1f574a2e8a74e2df7585c24c
 
 server:
   port: 8090

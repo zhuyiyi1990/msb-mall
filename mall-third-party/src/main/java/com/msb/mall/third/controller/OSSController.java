@@ -1,9 +1,9 @@
 package com.msb.mall.third.controller;
 
-import com.aliyun.oss.OSS;
+/*import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.MatchMode;
-import com.aliyun.oss.model.PolicyConditions;
+import com.aliyun.oss.model.PolicyConditions;*/
 import com.msb.common.utils.R;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,8 +18,8 @@ import java.util.Map;
 @RestController
 public class OSSController {
 
-    @Autowired
-    private OSS ossClient;
+    /*@Autowired
+    private OSS ossClient;*/
 
     @Value("${spring.cloud.alicloud.oss.endpoint}")
     private String endpoint;
@@ -30,7 +30,7 @@ public class OSSController {
     @Value("${spring.cloud.alicloud.access-key}")
     private String accessId;
 
-    @RequestMapping("/oss/policy")
+    /*@RequestMapping("/oss/policy")
     public R getOssPolicy() {
         String host = "https://" + bucket + "." + endpoint; // host的格式为bucketname.endpoint
 // callbackUrl为上传回调服务器的URL，请将下面的IP和Port配置为您自己的真实信息。
@@ -66,6 +66,6 @@ public class OSSController {
             ossClient.shutdown();
         }
         return R.ok().put("data", respMap);
-    }
+    }*/
 
 }
