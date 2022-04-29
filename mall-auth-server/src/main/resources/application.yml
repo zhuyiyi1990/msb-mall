@@ -11,5 +11,8 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
   thymeleaf:
     cache: false # \u5173\u95ED/\u5F00\u542FThymeleaf\u7684\u7F13\u5B58
+  redis:
+    host: 192.168.248.100
+    port: 6379
 server:
   port: 30000
