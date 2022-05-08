@@ -61,16 +61,17 @@ public class LoginController {
         String code = UUID.randomUUID().toString().substring(0, 5);
         thirdPartyFeignService.sendSmsCode(phone, code);
         code = code + "_" + System.currentTimeMillis();
+        System.out.println("code = " + code);
         redisTemplate.opsForValue().set(SMSConstant.SMS_CODE_PREFIX + phone, code, 10, TimeUnit.MINUTES);
         return R.ok();
     }
 
     @PostMapping("/sms/register")
     public String register(@Valid UserRegisterVo vo, BindingResult result, Model model) {
+        Map<String, String> map = new HashMap<>();
         if (result.hasErrors()) {
             // 表示提交的数据不合法
             List<FieldError> fieldErrors = result.getFieldErrors();
-            Map<String, String> map = new HashMap<>();
             for (FieldError fieldError : fieldErrors) {
                 String field = fieldError.getField();
                 String defaultMessage = fieldError.getDefaultMessage();
@@ -78,8 +79,22 @@ public class LoginController {
             }
             model.addAttribute("error", map);
             return "/reg";
+        } else {
+            // 验证码是否正确
+            String code = (String) redisTemplate.opsForValue().get(SMSConstant.SMS_CODE_PREFIX + vo.getPhone());
+            code = code.split("_")[0];
+            if (!code.equals(vo.getCode())) {
+                // 说明验证码不正确
+                map.put("code", "验证码错误");
+                model.addAttribute("error", map);
+                return "/reg";
+            } else {
+                // 验证码正确 删除验证码
+                redisTemplate.delete(SMSConstant.SMS_CODE_PREFIX + vo.getPhone());
+                // 远程调用对应的服务 完成注册功能
+                System.out.println("--------->验证码正确");
+            }
         }
-        // 表单提交的注册的数据是合法的
         return "redirect:/login.html";
     }
 
