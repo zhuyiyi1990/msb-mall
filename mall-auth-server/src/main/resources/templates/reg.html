@@ -5309,19 +5309,24 @@ Cookie</span>是由网页服务器存放在您的访问设备上的文本文件�
 						// 说明正在倒计时
 					}else{
 						// 给指定的手机号发送验证码
-						$.get("/sms/sendCode?phone="+$("#phoneNum").val());
+						$.get("/sms/sendCode?phone="+$("#phoneNum").val(),function(data){
+							if(data.code != 0){
+								// 请求处理有异常
+								alert(data.msg);
+							}
+						});
 						timeoutChangeStyle();
 					}
 
 				});
 			});
-			var num = 10;
+			var num = 60;
 			function timeoutChangeStyle(){
 				$("#sendCode").attr("class","d1");
 				if(num == 0){
 					// 说明1分钟到了，可以再次发送验证码了
 					$("#sendCode").text("发送验证码");
-					num = 10;
+					num = 60;
 					$("#sendCode").attr("class","");
 				}else{
 					setTimeout('timeoutChangeStyle()',1000);
