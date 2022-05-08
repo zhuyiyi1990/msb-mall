@@ -6,6 +6,7 @@ import com.msb.mall.member.exception.UsernameExistException;
 import com.msb.mall.member.service.MemberLevelService;
 import com.msb.mall.member.vo.MemberRegisterVO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -53,8 +54,12 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
 
         entity.setUsername(vo.getUserName());
         entity.setMobile(vo.getPhone());
+
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String encode = encoder.encode(vo.getPassword());
         // 需要对密码做加密处理
-        // entity.setPassword();
+        entity.setPassword(encode);
+        // 设置其他的默认值
         this.save(entity);
     }
 
