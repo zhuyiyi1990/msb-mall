@@ -3,7 +3,7 @@
 
 <mapper namespace="com.msb.mall.member.dao.MemberLevelDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.msb.mall.member.entity.MemberLevelEntity" id="memberLevelMap">
         <result property="id" column="id"/>
         <result property="name" column="name"/>
@@ -17,5 +17,8 @@
         <result property="note" column="note"/>
     </resultMap>
 
+    <select id="queryMemberLevelDefault" resultType="com.msb.mall.member.entity.MemberLevelEntity">
+        SELECT * FROM ums_member_level WHERE default_status = 1
+    </select>
 
 </mapper>

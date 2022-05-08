@@ -1,7 +1,13 @@
 package com.msb.mall.member.service.impl;
 
+import com.msb.mall.member.entity.MemberLevelEntity;
+import com.msb.mall.member.service.MemberLevelService;
+import com.msb.mall.member.vo.MemberRegisterVO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -12,9 +18,11 @@ import com.msb.mall.member.dao.MemberDao;
 import com.msb.mall.member.entity.MemberEntity;
 import com.msb.mall.member.service.MemberService;
 
-
 @Service("memberService")
 public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> implements MemberService {
+
+    @Autowired
+    MemberLevelService memberLevelService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -22,8 +30,26 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                 new Query<MemberEntity>().getPage(params),
                 new QueryWrapper<MemberEntity>()
         );
-
         return new PageUtils(page);
+    }
+
+    /**
+     * 完成会员的注册功能
+     *
+     * @param vo
+     */
+    @Override
+    public void register(MemberRegisterVO vo) {
+        MemberEntity entity = new MemberEntity();
+        // 设置会员等级 默认值
+        MemberLevelEntity memberLevelEntity = memberLevelService.queryMemberLevelDefault();
+        entity.setLevelId(memberLevelEntity.getId()); // 设置默认的会员等级
+        // 添加对应的账号和手机号是不能重复的
+        entity.setUsername(vo.getUserName());
+        entity.setMobile(vo.getPhone());
+        // 需要对密码做加密处理
+        // entity.setPassword();
+        this.save(entity);
     }
 
 }

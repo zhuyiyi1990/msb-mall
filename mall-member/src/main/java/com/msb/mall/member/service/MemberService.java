@@ -3,6 +3,7 @@ package com.msb.mall.member.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.msb.common.utils.PageUtils;
 import com.msb.mall.member.entity.MemberEntity;
+import com.msb.mall.member.vo.MemberRegisterVO;
 
 import java.util.Map;
 
@@ -16,5 +17,7 @@ import java.util.Map;
 public interface MemberService extends IService<MemberEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
-}
 
+    void register(MemberRegisterVO vo);
+
+}
