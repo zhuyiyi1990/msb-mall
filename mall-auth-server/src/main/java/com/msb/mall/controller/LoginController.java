@@ -102,7 +102,7 @@ public class LoginController {
                     return "redirect:http://msb.auth.com/login.html";
                 } else {
                     // 注册失败
-                    map.put("msg", r.getMessage());
+                    map.put("msg", r.getCode() + ":" + r.getMessage());
                     model.addAttribute("error", map);
                     return "/reg";
                 }
