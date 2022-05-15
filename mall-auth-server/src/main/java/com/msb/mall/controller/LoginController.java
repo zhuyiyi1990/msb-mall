@@ -5,6 +5,7 @@ import com.msb.common.exception.BizCodeEnum;
 import com.msb.common.utils.R;
 import com.msb.mall.feign.MemberFeignService;
 import com.msb.mall.feign.ThirdPartyFeignService;
+import com.msb.mall.vo.LoginVo;
 import com.msb.mall.vo.UserRegisterVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -109,6 +111,23 @@ public class LoginController {
             }
         }
         // return "redirect:/login.html";
+    }
+
+    /**
+     * 登录的方法
+     *
+     * @return
+     */
+    @PostMapping("/login")
+    public String login(LoginVo loginVo, RedirectAttributes redirectAttributes) {
+        R r = memberFeignService.login(loginVo);
+        if (r.getCode() == 0) {
+            // 表示登录成功
+            return "redirect:http://msb.mall.com/home.html";
+        }
+        redirectAttributes.addAttribute("errors", r.get("msg"));
+        // 表示登录失败，重新跳转到登录页面
+        return "redirect:http://msb.auth.com/login.html";
     }
 
 }

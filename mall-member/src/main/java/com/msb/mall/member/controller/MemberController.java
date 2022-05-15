@@ -7,6 +7,7 @@ import java.util.Map;
 import com.msb.common.exception.BizCodeEnum;
 import com.msb.mall.member.exception.PhoneExistException;
 import com.msb.mall.member.exception.UsernameExistException;
+import com.msb.mall.member.vo.MemberLoginVO;
 import com.msb.mall.member.vo.MemberRegisterVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -47,6 +48,15 @@ public class MemberController {
             return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(), BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
         }
         return R.ok();
+    }
+
+    @RequestMapping("/login")
+    public R login(MemberLoginVO vo) {
+        MemberEntity entity = memberService.login(vo);
+        if (entity != null) {
+            return R.ok();
+        }
+        return R.error(BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getCode(), BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getMsg());
     }
 
     /**
