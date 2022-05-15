@@ -4,6 +4,9 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.msb.common.exception.BizCodeEnum;
+import com.msb.mall.member.exception.PhoneExistException;
+import com.msb.mall.member.exception.UsernameExistException;
 import com.msb.mall.member.vo.MemberRegisterVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +37,15 @@ public class MemberController {
      */
     @PostMapping("/register")
     public R register(@RequestBody MemberRegisterVO vo) {
-        memberService.register(vo);
+        try {
+            memberService.register(vo);
+        } catch (UsernameExistException exception) {
+            return R.error(BizCodeEnum.USERNAME_EXIST_EXCEPTION.getCode(), BizCodeEnum.USERNAME_EXIST_EXCEPTION.getMsg());
+        } catch (PhoneExistException existException) {
+            return R.error(BizCodeEnum.PHONE_EXIST_EXCEPTION.getCode(), BizCodeEnum.PHONE_EXIST_EXCEPTION.getMsg());
+        } catch (Exception e) {
+            return R.error(BizCodeEnum.UNKNOWN_EXCEPTION.getCode(), BizCodeEnum.UNKNOWN_EXCEPTION.getMsg());
+        }
         return R.ok();
     }
 

@@ -42,7 +42,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
      * @param vo
      */
     @Override
-    public void register(MemberRegisterVO vo) {
+    public void register(MemberRegisterVO vo) throws PhoneExistException, UsernameExistException {
         MemberEntity entity = new MemberEntity();
         // 设置会员等级 默认值
         MemberLevelEntity memberLevelEntity = memberLevelService.queryMemberLevelDefault();

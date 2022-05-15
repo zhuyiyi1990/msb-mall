@@ -3,6 +3,7 @@ package com.msb.mall.controller;
 import com.msb.common.constant.SMSConstant;
 import com.msb.common.exception.BizCodeEnum;
 import com.msb.common.utils.R;
+import com.msb.mall.feign.MemberFeignService;
 import com.msb.mall.feign.ThirdPartyFeignService;
 import com.msb.mall.vo.UserRegisterVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class LoginController {
 
     @Autowired
     private ThirdPartyFeignService thirdPartyFeignService;
+
+    @Autowired
+    private MemberFeignService memberFeignService;
 
     /*@GetMapping("/login.html")
     public String login() {
@@ -92,10 +96,19 @@ public class LoginController {
                 // 验证码正确 删除验证码
                 redisTemplate.delete(SMSConstant.SMS_CODE_PREFIX + vo.getPhone());
                 // 远程调用对应的服务 完成注册功能
-                System.out.println("--------->验证码正确");
+                R r = memberFeignService.register(vo);
+                if (r.getCode() == 0) {
+                    // 注册成功
+                    return "redirect:http://msb.auth.com/login.html";
+                } else {
+                    // 注册失败
+                    map.put("msg", r.getMessage());
+                    model.addAttribute("error", map);
+                    return "/reg";
+                }
             }
         }
-        return "redirect:/login.html";
+        // return "redirect:/login.html";
     }
 
 }
