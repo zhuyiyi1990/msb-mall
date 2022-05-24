@@ -18,6 +18,6 @@ public interface MemberFeignService {
     R register(@RequestBody UserRegisterVo vo);
 
     @RequestMapping("/member/member/login")
-    R login(LoginVo vo);
+    R login(@RequestBody LoginVo vo);
 
 }

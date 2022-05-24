@@ -51,7 +51,7 @@ public class MemberController {
     }
 
     @RequestMapping("/login")
-    public R login(MemberLoginVO vo) {
+    public R login(@RequestBody MemberLoginVO vo) {
         MemberEntity entity = memberService.login(vo);
         if (entity != null) {
             return R.ok();

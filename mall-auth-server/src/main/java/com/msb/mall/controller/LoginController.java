@@ -123,7 +123,7 @@ public class LoginController {
         R r = memberFeignService.login(loginVo);
         if (r.getCode() == 0) {
             // 表示登录成功
-            return "redirect:http://msb.mall.com/home.html";
+            return "redirect:http://msb.mall.com/home";
         }
         redirectAttributes.addAttribute("errors", r.get("msg"));
         // 表示登录失败，重新跳转到登录页面
