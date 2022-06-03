@@ -105,6 +105,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
         MemberEntity memberEntity = this.getOne(new QueryWrapper<MemberEntity>().eq("social_uid", uid));
         if (memberEntity != null) {
             // 说明当前用户已经注册过了 更新token和过期时间
+            System.out.println("当前用户已经注册过了");
             MemberEntity entity = new MemberEntity();
             entity.setId(memberEntity.getId());
             entity.setAccessToken(vo.getAccessToken());
@@ -116,6 +117,7 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
             return memberEntity;
         }
         // 表示用户是第一提交，那么我们就需要对应的来注册
+        System.out.println("用户是第一提交");
         MemberEntity entity = new MemberEntity();
         entity.setAccessToken(vo.getAccessToken());
         entity.setExpiresIn(vo.getExpiresIn());

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.alibaba.fastjson.JSON;
 import com.msb.common.exception.BizCodeEnum;
 import com.msb.mall.member.exception.PhoneExistException;
 import com.msb.mall.member.exception.UsernameExistException;
@@ -63,8 +64,7 @@ public class MemberController {
     @RequestMapping("/oauth2/login")
     public R socialLogin(@RequestBody SocialUser vo) {
         MemberEntity entity = memberService.login(vo);
-        return R.error(BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getCode(),
-                BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getMsg());
+        return R.ok().put("entity", JSON.toJSONString(entity));
     }
 
     /**
