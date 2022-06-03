@@ -15,8 +15,8 @@ public class OAuth2Controller {
     @RequestMapping("/oauth/weibo/success")
     public String weiboOAuth(@RequestParam("code") String code) throws Exception {
         Map<String, String> body = new HashMap<>();
-        body.put("client_id", "4134519082");
-        body.put("client_secret", "d5b358e14d327bcfead40da4202ca71d");
+        body.put("client_id", "1695943506");
+        body.put("client_secret", "5b743e424f08cb6fbe44a28e009ef6c1");
         body.put("grant_type", "authorization_code");
         body.put("redirect_uri", "http://msb.auth.com/oauth/weibo/success");
         body.put("code", code);
@@ -29,7 +29,7 @@ public class OAuth2Controller {
                 , body
         );
         // 注册成功就需要跳转到商城的首页
-        return "redirect:http://mall.msb.com/home.html";
+        return "redirect:http://msb.mall.com/home.html";
     }
 
 }
