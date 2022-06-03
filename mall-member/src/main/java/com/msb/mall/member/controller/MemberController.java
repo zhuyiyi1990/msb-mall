@@ -9,6 +9,7 @@ import com.msb.mall.member.exception.PhoneExistException;
 import com.msb.mall.member.exception.UsernameExistException;
 import com.msb.mall.member.vo.MemberLoginVO;
 import com.msb.mall.member.vo.MemberRegisterVO;
+import com.msb.mall.member.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,6 +58,13 @@ public class MemberController {
             return R.ok();
         }
         return R.error(BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getCode(), BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getMsg());
+    }
+
+    @RequestMapping("/oauth2/login")
+    public R socialLogin(@RequestBody SocialUser vo) {
+        MemberEntity entity = memberService.login(vo);
+        return R.error(BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getCode(),
+                BizCodeEnum.USERNAME_PHONE_VALID_EXCEPTION.getMsg());
     }
 
     /**

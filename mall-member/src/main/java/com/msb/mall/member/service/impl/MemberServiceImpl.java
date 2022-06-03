@@ -6,6 +6,7 @@ import com.msb.mall.member.exception.UsernameExistException;
 import com.msb.mall.member.service.MemberLevelService;
 import com.msb.mall.member.vo.MemberLoginVO;
 import com.msb.mall.member.vo.MemberRegisterVO;
+import com.msb.mall.member.vo.SocialUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -80,6 +81,17 @@ public class MemberServiceImpl extends ServiceImpl<MemberDao, MemberEntity> impl
                 return entity;
             }
         }
+        return null;
+    }
+
+    /**
+     * 社交登录
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    public MemberEntity login(SocialUser vo) {
         return null;
     }
 

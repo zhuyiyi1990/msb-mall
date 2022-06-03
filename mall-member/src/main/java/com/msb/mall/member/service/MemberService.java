@@ -7,6 +7,7 @@ import com.msb.mall.member.exception.PhoneExistException;
 import com.msb.mall.member.exception.UsernameExistException;
 import com.msb.mall.member.vo.MemberLoginVO;
 import com.msb.mall.member.vo.MemberRegisterVO;
+import com.msb.mall.member.vo.SocialUser;
 
 import java.util.Map;
 
@@ -24,5 +25,13 @@ public interface MemberService extends IService<MemberEntity> {
     void register(MemberRegisterVO vo) throws PhoneExistException, UsernameExistException;
 
     MemberEntity login(MemberLoginVO vo);
+
+    /**
+     * 社交登录
+     *
+     * @param vo
+     * @return
+     */
+    MemberEntity login(SocialUser vo);
 
 }

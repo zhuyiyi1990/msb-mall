@@ -1,7 +1,10 @@
 package com.msb.mall.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.msb.common.utils.HttpUtils;
+import com.msb.mall.vo.SocialUser;
 import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,10 +27,18 @@ public class OAuth2Controller {
         HttpResponse post = HttpUtils.doPost("https://api.weibo.com"
                 , "/oauth2/access_token"
                 , "post"
-                , null
+                , new HashMap<>()
                 , null
                 , body
         );
+        int statusCode = post.getStatusLine().getStatusCode();
+        if (statusCode != 200) {
+            // 说明获取Token失败,就调回到登录页面
+            return "redirect:http://msb.auth.com/login.html";
+        }
+        // 说明获取Token信息成功
+        String json = EntityUtils.toString(post.getEntity());
+        SocialUser socialUser = JSON.parseObject(json, SocialUser.class);
         // 注册成功就需要跳转到商城的首页
         return "redirect:http://msb.mall.com/home.html";
     }
