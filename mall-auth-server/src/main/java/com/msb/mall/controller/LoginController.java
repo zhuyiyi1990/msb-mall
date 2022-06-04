@@ -124,7 +124,7 @@ public class LoginController {
                         HttpSession session) {
         R r = memberFeignService.login(loginVo);
         if (r.getCode() == 0) {
-            session.setAttribute("loginUser", "bobo烤鸭");
+            session.setAttribute("login", "bobo烤鸭");
             // 表示登录成功
             return "redirect:http://mall.msb.com/home";
         }
