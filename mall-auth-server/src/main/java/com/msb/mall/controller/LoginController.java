@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
@@ -101,7 +102,7 @@ public class LoginController {
                 R r = memberFeignService.register(vo);
                 if (r.getCode() == 0) {
                     // 注册成功
-                    return "redirect:http://msb.auth.com/login.html";
+                    return "redirect:http://auth.msb.com/login.html";
                 } else {
                     // 注册失败
                     map.put("msg", r.getCode() + ":" + r.getMessage());
@@ -119,15 +120,17 @@ public class LoginController {
      * @return
      */
     @PostMapping("/login")
-    public String login(LoginVo loginVo, RedirectAttributes redirectAttributes) {
+    public String login(LoginVo loginVo, RedirectAttributes redirectAttributes,
+                        HttpSession session) {
         R r = memberFeignService.login(loginVo);
         if (r.getCode() == 0) {
+            session.setAttribute("loginUser", "bobo烤鸭");
             // 表示登录成功
-            return "redirect:http://msb.mall.com/home";
+            return "redirect:http://mall.msb.com/home";
         }
         redirectAttributes.addAttribute("errors", r.get("msg"));
         // 表示登录失败，重新跳转到登录页面
-        return "redirect:http://msb.auth.com/login.html";
+        return "redirect:http://auth.msb.com/login.html";
     }
 
 }

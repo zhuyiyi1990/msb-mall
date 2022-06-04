@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.msb.common.utils.HttpUtils;
 import com.msb.common.utils.R;
 import com.msb.mall.feign.MemberFeignService;
+import com.msb.mall.vo.MemberVO;
 import com.msb.mall.vo.SocialUser;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -29,7 +30,7 @@ public class OAuth2Controller {
         body.put("client_id", "1695943506");
         body.put("client_secret", "5b743e424f08cb6fbe44a28e009ef6c1");
         body.put("grant_type", "authorization_code");
-        body.put("redirect_uri", "http://msb.auth.com/oauth/weibo/success");
+        body.put("redirect_uri", "http://auth.msb.com/oauth/weibo/success");
         body.put("code", code);
         // 根据Code获取对应的Token信息
         HttpResponse post = HttpUtils.doPost("https://api.weibo.com"
@@ -42,7 +43,7 @@ public class OAuth2Controller {
         int statusCode = post.getStatusLine().getStatusCode();
         if (statusCode != 200) {
             // 说明获取Token失败,就调回到登录页面
-            return "redirect:http://msb.auth.com/login.html";
+            return "redirect:http://auth.msb.com/login.html";
         }
         // 说明获取Token信息成功
         String json = EntityUtils.toString(post.getEntity());
@@ -50,13 +51,14 @@ public class OAuth2Controller {
         R r = memberFeignService.socialLogin(socialUser);
         if (r.getCode() != 0) {
             // 登录错误
-            return "redirect:http://msb.auth.com/login.html";
+            return "redirect:http://auth.msb.com/login.html";
         }
         String entityJson = (String) r.get("entity");
         System.out.println("----------------->" + entityJson);
-        session.setAttribute("loginUser", entityJson);
+        MemberVO memberVO = JSON.parseObject(entityJson, MemberVO.class);
+        session.setAttribute("loginUser", memberVO);
         // 注册成功就需要跳转到商城的首页
-        return "redirect:http://msb.mall.com/home";
+        return "redirect:http://mall.msb.com/home";
     }
 
 }
