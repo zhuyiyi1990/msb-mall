@@ -13,6 +13,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +27,7 @@ public class OAuth2Controller {
 
     @RequestMapping("/oauth/weibo/success")
     public String weiboOAuth(@RequestParam("code") String code
-            , HttpSession session) throws Exception {
+            , HttpSession session, HttpServletResponse response) throws Exception {
         Map<String, String> body = new HashMap<>();
         body.put("client_id", "1695943506");
         body.put("client_secret", "5b743e424f08cb6fbe44a28e009ef6c1");
@@ -57,6 +59,9 @@ public class OAuth2Controller {
         System.out.println("----------------->" + entityJson);
         MemberVO memberVO = JSON.parseObject(entityJson, MemberVO.class);
         session.setAttribute("loginUser", memberVO);
+        /*Cookie cookie = new Cookie("", "");
+        cookie.set
+        response.addCookie(cookie);*/
         // 注册成功就需要跳转到商城的首页
         return "redirect:http://mall.msb.com/home";
     }
