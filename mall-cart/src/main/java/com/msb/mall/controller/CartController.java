@@ -20,4 +20,16 @@ public class CartController {
         return "/cartList";
     }
 
+    /**
+     * 加入购物车
+     *
+     * @return
+     */
+    @GetMapping("/addCart")
+    public String addCart(String skuId) {
+        // TODO 把商品添加到购物车中的行为
+        System.out.println("---->addCart");
+        return "success";
+    }
+
 }
