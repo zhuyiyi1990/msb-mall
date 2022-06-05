@@ -29,7 +29,7 @@ public class CartController {
      * @return
      */
     @GetMapping("/addCart")
-    public String addCart(@RequestParam("skuId") String skuId
+    public String addCart(@RequestParam("skuId") Long skuId
             , @RequestParam("num") Integer num
             , Model model) {
         // TODO 把商品添加到购物车中的行为

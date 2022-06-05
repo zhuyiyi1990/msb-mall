@@ -12,6 +12,6 @@ public interface ICartService {
 
     List<Cart> getCartList();
 
-    CartItem addCart(String skuId, Integer num);
+    CartItem addCart(Long skuId, Integer num);
 
 }
