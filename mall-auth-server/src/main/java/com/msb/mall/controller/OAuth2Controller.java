@@ -1,6 +1,7 @@
 package com.msb.mall.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.msb.common.constant.AuthConstant;
 import com.msb.common.utils.HttpUtils;
 import com.msb.common.utils.R;
 import com.msb.common.vo.MemberVO;
@@ -58,7 +59,7 @@ public class OAuth2Controller {
         String entityJson = (String) r.get("entity");
         System.out.println("----------------->" + entityJson);
         MemberVO memberVO = JSON.parseObject(entityJson, MemberVO.class);
-        session.setAttribute("loginUser", memberVO);
+        session.setAttribute(AuthConstant.AUTH_SESSION_REDIS, memberVO);
         /*Cookie cookie = new Cookie("", "");
         cookie.set
         response.addCookie(cookie);*/
