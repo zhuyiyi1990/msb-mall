@@ -10,6 +10,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.concurrent.ExecutionException;
+
 @Controller
 public class CartController {
 
@@ -32,9 +34,15 @@ public class CartController {
     public String addCart(@RequestParam("skuId") Long skuId
             , @RequestParam("num") Integer num
             , Model model) {
-        // TODO 把商品添加到购物车中的行为
         System.out.println("---->addCart");
-        CartItem item = cartService.addCart(skuId, num);
+        CartItem item = null;
+        try {
+            item = cartService.addCart(skuId, num);
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         model.addAttribute("item", item);
         return "success";
     }
