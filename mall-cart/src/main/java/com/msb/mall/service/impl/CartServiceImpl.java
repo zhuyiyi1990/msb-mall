@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -48,23 +47,24 @@ public class CartServiceImpl implements ICartService {
      * @return
      */
     @Override
-    public CartItem addCart(Long skuId, Integer num) throws ExecutionException, InterruptedException {
+    public CartItem addCart(Long skuId, Integer num) throws Exception {
         BoundHashOperations<String, Object, Object> hashOperations = getCartKeyOperation();
         // 如果Redis存储在商品的信息，那么我们只需要修改商品的数量就可以了
-        Object o = hashOperations.get(skuId);
+        Object o = hashOperations.get(skuId.toString());
         if (o != null) {
             // 说明已经存在了这个商品那么修改商品的数量即可
             String json = (String) o;
             CartItem item = JSON.parseObject(json, CartItem.class);
             item.setCount(item.getCount() + num);
-            hashOperations.put(skuId, JSON.toJSONString(item));
+            hashOperations.put(skuId.toString(), JSON.toJSONString(item));
             return item;
         }
         CartItem item = new CartItem();
         CompletableFuture future1 = CompletableFuture.runAsync(() -> {
             // 1.远程调用获取 商品信息
             R r = productFeignService.info(skuId);
-            SkuInfoVo vo = (SkuInfoVo) r.get("skuInfo");
+            String skuInfoJSON = (String) r.get("skuInfoJSON");
+            SkuInfoVo vo = JSON.parseObject(skuInfoJSON, SkuInfoVo.class);
             item.setCheck(true);
             item.setCount(num);
             item.setPrice(vo.getPrice());
@@ -82,7 +82,7 @@ public class CartServiceImpl implements ICartService {
         CompletableFuture.allOf(future1, future2).get();
         // 3.把数据存储在Redis中
         String json = JSON.toJSONString(item);
-        hashOperations.put(skuId, json);
+        hashOperations.put(skuId.toString(), json);
         return item;
     }
 

@@ -10,8 +10,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.concurrent.ExecutionException;
-
 @Controller
 public class CartController {
 
@@ -38,9 +36,7 @@ public class CartController {
         CartItem item = null;
         try {
             item = cartService.addCart(skuId, num);
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         model.addAttribute("item", item);
