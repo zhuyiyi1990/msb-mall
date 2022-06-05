@@ -1,5 +1,6 @@
 package com.msb.mall.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.msb.common.constant.CartConstant;
 import com.msb.common.utils.R;
 import com.msb.common.vo.MemberVO;
@@ -43,6 +44,16 @@ public class CartServiceImpl implements ICartService {
     @Override
     public CartItem addCart(Long skuId, Integer num) {
         BoundHashOperations<String, Object, Object> hashOperations = getCartKeyOperation();
+        // 如果Redis存储在商品的信息，那么我们只需要修改商品的数量就可以了
+        Object o = hashOperations.get(skuId);
+        if (o != null) {
+            // 说明已经存在了这个商品那么修改商品的数量即可
+            String json = (String) o;
+            CartItem item = JSON.parseObject(json, CartItem.class);
+            item.setCount(item.getCount() + num);
+            hashOperations.put(skuId, JSON.toJSONString(item));
+            return item;
+        }
         CartItem item = new CartItem();
         // 1.远程调用获取 商品信息
         R r = productFeignService.info(skuId);
@@ -54,8 +65,12 @@ public class CartServiceImpl implements ICartService {
         item.setSkuId(skuId);
         item.setTitle(vo.getSkuTitle());
         // 2.获取商品的销售属性
-        //item.setSkuAttr();
-        return null;
+        List<String> skuSaleAttrs = productFeignService.getSkuSaleAttrs(skuId);
+        item.setSkuAttr(skuSaleAttrs);
+        // 3.把数据存储在Redis中
+        String json = JSON.toJSONString(item);
+        hashOperations.put(skuId, json);
+        return item;
     }
 
     private BoundHashOperations<String, Object, Object> getCartKeyOperation() {
