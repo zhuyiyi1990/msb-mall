@@ -1,10 +1,12 @@
 package com.msb.common.vo;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Date;
 
+@ToString
 @Data
 public class MemberVO implements Serializable {
 
