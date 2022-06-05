@@ -1,6 +1,7 @@
 package com.msb.mall.service;
 
 import com.msb.mall.vo.Cart;
+import com.msb.mall.vo.CartItem;
 
 import java.util.List;
 
@@ -10,5 +11,7 @@ import java.util.List;
 public interface ICartService {
 
     List<Cart> getCartList();
+
+    CartItem addCart(String skuId, Integer num);
 
 }

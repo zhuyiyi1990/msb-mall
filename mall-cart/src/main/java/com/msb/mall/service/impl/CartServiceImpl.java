@@ -2,6 +2,7 @@ package com.msb.mall.service.impl;
 
 import com.msb.mall.service.ICartService;
 import com.msb.mall.vo.Cart;
+import com.msb.mall.vo.CartItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,11 @@ public class CartServiceImpl implements ICartService {
 
     @Override
     public List<Cart> getCartList() {
+        return null;
+    }
+
+    @Override
+    public CartItem addCart(String skuId, Integer num) {
         return null;
     }
 
