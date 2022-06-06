@@ -15,7 +15,9 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -34,9 +36,26 @@ public class CartServiceImpl implements ICartService {
     @Autowired
     ThreadPoolExecutor executor;
 
+    /**
+     * 查询出当前登录用户的所有的购物车信息
+     *
+     * @return
+     */
     @Override
-    public List<Cart> getCartList() {
-        return null;
+    public Cart getCartList() {
+        BoundHashOperations<String, Object, Object> operations = getCartKeyOperation();
+        Set<Object> keys = operations.keys();
+        Cart cart = new Cart();
+        List<CartItem> list = new ArrayList<>();
+        for (Object k : keys) {
+            String key = (String) k;
+            Object o = operations.get(key);
+            String json = (String) o;
+            CartItem item = JSON.parseObject(json, CartItem.class);
+            list.add(item);
+        }
+        cart.setItems(list);
+        return cart;
     }
 
     /**

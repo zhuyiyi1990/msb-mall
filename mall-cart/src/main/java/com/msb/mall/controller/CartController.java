@@ -1,8 +1,7 @@
 package com.msb.mall.controller;
 
-import com.msb.common.vo.MemberVO;
-import com.msb.mall.interceptor.AuthInterceptor;
 import com.msb.mall.service.ICartService;
+import com.msb.mall.vo.Cart;
 import com.msb.mall.vo.CartItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,9 +16,9 @@ public class CartController {
     private ICartService cartService;
 
     @GetMapping("/cart_list")
-    public String queryCartList() {
-        MemberVO memberVO = AuthInterceptor.threadLocal.get();
-        System.out.println(memberVO);
+    public String queryCartList(Model model) {
+        Cart cart = cartService.getCartList();
+        model.addAttribute("cart", cart);
         return "cartList";
     }
 
