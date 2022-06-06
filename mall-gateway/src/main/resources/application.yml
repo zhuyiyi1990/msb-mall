@@ -1,3 +1,4 @@
+# 注册中心的信息
 spring:
   application:
     name: mall-gateway
@@ -12,31 +13,31 @@ spring:
           predicates:
             - Path=/app/product/**,/hello
           filters:
-            - RewritePath=/app/(?<segment>/?.*),/$\{segment}
-        - id: third-route
+            - RewritePath=/app/(?<segment>/?.*), /$\{segment}
+        - id: third_route
           uri: lb://mall-third
           predicates:
             - Path=/app/third/**
           filters:
-            - RewritePath=/app/third/(?<segment>/?.*),/$\{segment}
-        - id: member-route
+            - RewritePath=/app/third/(?<segment>/?.*), /$\{segment}
+        - id: member_route
           uri: lb://mall-member
           predicates:
             - Path=/app/member/**
           filters:
-            - RewritePath=/app/(?<segment>/?.*),/$\{segment}
-        - id: ware-route
+            - RewritePath=/app/(?<segment>/?.*), /$\{segment}
+        - id: ware_route
           uri: lb://mall-ware
           predicates:
             - Path=/app/ware/**
           filters:
-            - RewritePath=/app/(?<segment>/?.*),/$\{segment}
+            - RewritePath=/app/(?<segment>/?.*), /$\{segment}
         - id: app_route
           uri: lb://renren-fast
           predicates:
             - Path=/app/**
           filters:
-            - RewritePath=/app/(?<segment>/?.*),/renren-fast/$\{segment}
+            - RewritePath=/app/(?<segment>/?.*), /renren-fast/$\{segment}
         - id: msbmall_host_route1
           uri: lb://mall-product
           predicates:
@@ -57,5 +58,13 @@ spring:
           uri: lb://mall-cart
           predicates:
             - Host=cart.msb.com
+        - id: msbmall_host_route6
+          uri: lb://mall-order
+          predicates:
+            - Host=order.msb.com
+
+# localhost:8070/app/captcha.jpg -->
+# localhost:8080/app/captcha.jpg localhost:8080/renren-fast/captcha.jpg
+# 指定注册中心的服务端口
 server:
   port: 8070

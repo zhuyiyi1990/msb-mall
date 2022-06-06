@@ -6,10 +6,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+/**
+ * basePackages 制定Fegin接口的路径
+ */
+@EnableFeignClients(basePackages = "com.msb.mall.order.feign")
+@EnableDiscoveryClient
 @SpringBootApplication
 @MapperScan("com.msb.mall.order.dao")
-@EnableDiscoveryClient
-@EnableFeignClients("com.msb.mall.order.feign")
 public class MallOrderApplication {
 
     public static void main(String[] args) {
