@@ -9,6 +9,7 @@ import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
 import com.msb.mall.order.feign.ProductService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
+import com.msb.mall.order.service.OrderItemService;
 import com.msb.mall.order.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -51,6 +52,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     @Autowired
     StringRedisTemplate redisTemplate;
 
+    @Autowired
+    OrderItemService orderItemService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<OrderEntity> page = this.page(
@@ -65,11 +69,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderConfirmVo vo = new OrderConfirmVo();
         MemberVO memberVO = AuthInterceptor.threadLocal.get();
         System.out.println("主线程:" + Thread.currentThread().getName());
-        // 获取到 RequestContextHolder 的相关信息
+        // 在主线程中获取 RequestAttributes
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
         CompletableFuture<Void> future1 = CompletableFuture.runAsync(() -> {
             System.out.println("获取会员:" + Thread.currentThread().getName());
-            // 同步主线程中的 RequestContextHolder
+            // RequestContextHolder 绑定主线程中的 RequestAttributes
             RequestContextHolder.setRequestAttributes(requestAttributes);
             // 1.查询当前登录用户对应的会员的地址信息
             Long id = memberVO.getId();
@@ -78,11 +82,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }, executor);
         CompletableFuture<Void> future2 = CompletableFuture.runAsync(() -> {
             System.out.println("获取购物车:" + Thread.currentThread().getName());
+            // RequestContextHolder 绑定主线程中的 RequestAttributes
             RequestContextHolder.setRequestAttributes(requestAttributes);
             // 2.查询购物车中选中的商品信息
             List<OrderItemVo> userCartItems = cartFeignService.getUserCartItems();
             vo.setItems(userCartItems);
         }, executor);
+        // 主线程需要等待所有的子线程完成后继续
         try {
             CompletableFuture.allOf(future1, future2).get();
         } catch (Exception e) {
@@ -132,10 +138,26 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             responseVO.setCode(1);
             return responseVO;
         }
-        // 创建订单
+        // 2.创建订单和订单项信息
         OrderCreateTO orderCreateTO = createOrder(vo);
-        // 2.下订单操作
+        // 3.保存订单信息
+        saveOrder(orderCreateTO);
+        // 4.锁定库存信息
         return null;
+    }
+
+    /**
+     * 生成订单数据
+     *
+     * @param orderCreateTO
+     */
+    private void saveOrder(OrderCreateTO orderCreateTO) {
+        // 1.订单数据
+        OrderEntity orderEntity = orderCreateTO.getOrderEntity();
+        this.save(orderEntity);
+        // 2.订单项数据
+        List<OrderItemEntity> orderItemEntities = orderCreateTO.getOrderItemEntities();
+        orderItemService.saveBatch(orderItemEntities);
     }
 
     /**
@@ -176,6 +198,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             List<OrderItemSpuInfoVO> spuInfos = productService.getOrderItemSpuInfoBySpuId((Long[]) spuIds.toArray());
             Map<Long, OrderItemSpuInfoVO> map = spuInfos.stream().collect(Collectors.toMap(OrderItemSpuInfoVO::getId, item -> item));
             for (OrderItemVo userCartItem : userCartItems) {
+                // 获取到商品信息对应的 SPU信息
                 OrderItemSpuInfoVO spuInfo = map.get(userCartItem.getSpuId());
                 OrderItemEntity orderItemEntity = buildOrderItem(userCartItem, spuInfo);
                 // 绑定对应的订单编号
