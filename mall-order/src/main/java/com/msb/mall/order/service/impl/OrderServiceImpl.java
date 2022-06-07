@@ -1,5 +1,6 @@
 package com.msb.mall.order.service.impl;
 
+import com.msb.common.constant.OrderConstant;
 import com.msb.common.vo.MemberVO;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
@@ -8,10 +9,12 @@ import com.msb.mall.order.vo.MemberAddressVo;
 import com.msb.mall.order.vo.OrderConfirmVo;
 import com.msb.mall.order.vo.OrderItemVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -38,6 +41,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     ThreadPoolExecutor executor;
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -77,6 +83,13 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             e.printStackTrace();
         }
         // 3.计算订单的总金额和需要支付的总金额 VO自动计算
+        // 4.生成防重的Token
+        String token = UUID.randomUUID().toString().replaceAll("-", "");
+        // 我们需要把这个Token信息存储在Redis中
+        // order:token:用户编号
+        redisTemplate.opsForValue().set(OrderConstant.ORDER_TOKEN_PREFIX + ":" + memberVO.getId(), token);
+        // 然后我们需要将这个Token绑定在响应的数据对象中
+        vo.setOrderToken(token);
         return vo;
     }
 

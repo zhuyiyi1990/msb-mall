@@ -23,6 +23,10 @@ public class OrderConfirmVo {
     // 发票信息
     // 优惠信息
 
+    @Getter
+    @Setter
+    private String orderToken;
+
     //Integer countNum;
     public Integer getCountNum() {
         int count = 0;

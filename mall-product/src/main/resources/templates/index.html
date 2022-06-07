@@ -95,8 +95,13 @@
   					</b>
         <ul>
           <li th:if="${session.loginUser != null}">
+            <a href="#" >
+              [[${session.loginUser.nickname}]]
+            </a>
+          </li>
+          <li th:if="${session.loginUser == null}">
             <a href="http://auth.msb.com/login.html" >
-              [[${session.loginUser !=null?session.loginUser.nickname:'你好，请登录:'}]]
+              你好，请登录
             </a>
           </li>
           <li>
