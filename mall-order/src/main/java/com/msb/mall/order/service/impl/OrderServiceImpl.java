@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.msb.common.constant.OrderConstant;
 import com.msb.common.vo.MemberVO;
 import com.msb.mall.order.dto.OrderCreateTO;
+import com.msb.mall.order.entity.OrderItemEntity;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
@@ -13,10 +14,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -29,6 +27,7 @@ import com.msb.common.utils.Query;
 import com.msb.mall.order.dao.OrderDao;
 import com.msb.mall.order.entity.OrderEntity;
 import com.msb.mall.order.service.OrderService;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 
@@ -145,8 +144,53 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 创建订单
         OrderEntity orderEntity = buildOrder(vo);
         createTO.setOrderEntity(orderEntity);
-        // 创建OrderItemEntity
+        // 创建OrderItemEntity 订单项
+        List<OrderItemEntity> orderItemEntities = buildOrderItems(orderEntity.getOrderSn());
         return createTO;
+    }
+
+    /**
+     * 通过购物车中选中的商品来创建对应的购物项信息
+     *
+     * @return
+     */
+    private List<OrderItemEntity> buildOrderItems(String orderSN) {
+        List<OrderItemEntity> orderItemEntities = new ArrayList<>();
+        // 获取购物车中的商品信息 选中的
+        List<OrderItemVo> userCartItems = cartFeignService.getUserCartItems();
+        if (userCartItems != null && userCartItems.size() > 0) {
+            for (OrderItemVo userCartItem : userCartItems) {
+                OrderItemEntity orderItemEntity = buildOrderItem(userCartItem);
+                // 绑定对应的订单编号
+                orderItemEntity.setOrderSn(orderSN);
+                orderItemEntities.add(orderItemEntity);
+            }
+        }
+        return orderItemEntities;
+    }
+
+    /**
+     * 根据一个购物车中的商品创建对应的 订单项
+     *
+     * @param userCartItem
+     * @return
+     */
+    private OrderItemEntity buildOrderItem(OrderItemVo userCartItem) {
+        OrderItemEntity entity = new OrderItemEntity();
+        // SKU信息
+        entity.setSkuId(userCartItem.getSkuId());
+        entity.setSkuName(userCartItem.getTitle());
+        entity.setSkuPic(userCartItem.getImage());
+        entity.setSkuQuantity(userCartItem.getCount());
+        List<String> skuAttr = userCartItem.getSkuAttr();
+        String skuAttrStr = StringUtils.collectionToDelimitedString(skuAttr, ";");
+        entity.setSkuAttrsVals(skuAttrStr);
+        // SPU信息
+        // 优惠信息 忽略
+        // 积分信息
+        entity.setGiftGrowth(userCartItem.getPrice().intValue());
+        entity.setGiftIntegration(userCartItem.getPrice().intValue());
+        return entity;
     }
 
     private OrderEntity buildOrder(OrderSubmitVO vo) {
