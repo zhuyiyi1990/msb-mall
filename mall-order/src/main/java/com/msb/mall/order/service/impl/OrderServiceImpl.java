@@ -151,6 +151,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         createTO.setOrderEntity(orderEntity);
         // 创建OrderItemEntity 订单项
         List<OrderItemEntity> orderItemEntities = buildOrderItems(orderEntity.getOrderSn());
+        createTO.setOrderItemEntities(orderItemEntities);
         return createTO;
     }
 
@@ -202,6 +203,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         String skuAttrStr = StringUtils.collectionToDelimitedString(skuAttr, ";");
         entity.setSkuAttrsVals(skuAttrStr);
         // SPU信息
+        entity.setSpuId(spuInfo.getId());
+        entity.setSpuBrand(spuInfo.getBrandName());
+        entity.setCategoryId(spuInfo.getCatalogId());
+        entity.setSpuPic(spuInfo.getImg());
         // 优惠信息 忽略
         // 积分信息
         entity.setGiftGrowth(userCartItem.getPrice().intValue());
