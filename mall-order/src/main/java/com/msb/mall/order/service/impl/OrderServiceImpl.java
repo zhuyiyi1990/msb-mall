@@ -5,13 +5,13 @@ import com.msb.common.vo.MemberVO;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
-import com.msb.mall.order.vo.MemberAddressVo;
-import com.msb.mall.order.vo.OrderConfirmVo;
-import com.msb.mall.order.vo.OrderItemVo;
+import com.msb.mall.order.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -91,6 +91,43 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 然后我们需要将这个Token绑定在响应的数据对象中
         vo.setOrderToken(token);
         return vo;
+    }
+
+    // private Lock lock = new ReentrantLock();
+
+    @Override
+    public OrderResponseVO submitOrder(OrderSubmitVO vo) {
+        // 需要返回响应的对象
+        OrderResponseVO responseVO = new OrderResponseVO();
+        // 获取当前登录的用户信息
+        MemberVO memberVO = AuthInterceptor.threadLocal.get();
+        // 1.验证是否重复提交  保证Redis中的token 的查询和删除是一个原子性操作
+        String key = OrderConstant.ORDER_TOKEN_PREFIX + ":" + memberVO.getId();
+        /*try {
+            lock.lock();//加锁
+            String redisToken = redisTemplate.opsForValue().get(key);
+            if (redisToken != null && redisToken.equals(vo.getOrderToken())) {
+                // 表示是第一次提交
+                // 需要删除Token
+                redisTemplate.delete(key);
+            } else {
+                // 表示是重复提交
+                return responseVO;
+            }
+        } finally {
+            lock.unlock(); //释放锁
+        }*/
+        String script = "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0";
+        Long result = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class)
+                , Arrays.asList(key)
+                , vo.getOrderToken());
+        if (result == 0) {
+            // 表示验证失败 说明是重复提交
+            return responseVO;
+        }
+        // 是第一次提交 令牌验证成功 开始下订单的操作
+        // 2.下订单操作
+        return null;
     }
 
 }

@@ -2,6 +2,7 @@ package com.msb.mall.order.web;
 
 import com.msb.mall.order.service.OrderService;
 import com.msb.mall.order.vo.OrderConfirmVo;
+import com.msb.mall.order.vo.OrderResponseVO;
 import com.msb.mall.order.vo.OrderSubmitVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -26,10 +27,14 @@ public class OrderWebController {
     @PostMapping("/orderSubmit")
     public String orderSubmit(OrderSubmitVO vo) {
         System.out.println("vo = " + vo);
-        // 验证是否重复提交
-        // 下订单
-        // 跳转到支付页面
-        return "";
+        OrderResponseVO responseVO = orderService.submitOrder(vo);
+        if (responseVO.getCode() == 0) {
+            // 表示下单操作成功
+            return "pay";
+        } else {
+            // 表示下单操作失败
+            return "redirect:http://order.msb.com/toTrade";
+        }
     }
 
 }
