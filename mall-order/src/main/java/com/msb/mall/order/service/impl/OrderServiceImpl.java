@@ -7,6 +7,7 @@ import com.msb.mall.order.dto.OrderCreateTO;
 import com.msb.mall.order.entity.OrderItemEntity;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
+import com.msb.mall.order.feign.ProductService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
 import com.msb.mall.order.vo.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -39,6 +41,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     CartFeignService cartFeignService;
+
+    @Autowired
+    ProductService productService;
 
     @Autowired
     ThreadPoolExecutor executor;
@@ -159,8 +164,19 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 获取购物车中的商品信息 选中的
         List<OrderItemVo> userCartItems = cartFeignService.getUserCartItems();
         if (userCartItems != null && userCartItems.size() > 0) {
+            // 统一根据SKUID查询出对应的SPU的信息
+            List<Long> spuIds = new ArrayList<>();
+            for (OrderItemEntity orderItemEntity : orderItemEntities) {
+                if (!spuIds.contains(orderItemEntity.getSpuId())) {
+                    spuIds.add(orderItemEntity.getOrderId());
+                }
+            }
+            // 远程调用商品服务获取到对应的SPU信息
+            List<OrderItemSpuInfoVO> spuInfos = productService.getOrderItemSpuInfoBySpuId((Long[]) spuIds.toArray());
+            Map<Long, OrderItemSpuInfoVO> map = spuInfos.stream().collect(Collectors.toMap(OrderItemSpuInfoVO::getId, item -> item));
             for (OrderItemVo userCartItem : userCartItems) {
-                OrderItemEntity orderItemEntity = buildOrderItem(userCartItem);
+                OrderItemSpuInfoVO spuInfo = map.get(userCartItem.getSpuId());
+                OrderItemEntity orderItemEntity = buildOrderItem(userCartItem, spuInfo);
                 // 绑定对应的订单编号
                 orderItemEntity.setOrderSn(orderSN);
                 orderItemEntities.add(orderItemEntity);
@@ -175,7 +191,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
      * @param userCartItem
      * @return
      */
-    private OrderItemEntity buildOrderItem(OrderItemVo userCartItem) {
+    private OrderItemEntity buildOrderItem(OrderItemVo userCartItem, OrderItemSpuInfoVO spuInfo) {
         OrderItemEntity entity = new OrderItemEntity();
         // SKU信息
         entity.setSkuId(userCartItem.getSkuId());
