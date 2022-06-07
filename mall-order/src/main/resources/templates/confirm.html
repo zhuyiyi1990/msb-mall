@@ -667,7 +667,7 @@
 				<div class="yun1" th:each="item:${confirmVo.items}">
 					<img th:src="${item.image}" class="yun"/>
 					<div class="mi">
-						<p>[[${item.title}]] <span style="color: red;"> ￥ [[${item.price}]]</span> <span> x1 </span> <span>[[${item.hasStock?'有货':'无货'}]]</span></p>
+						<p>[[${item.title}]] <span style="color: red;"> ￥ [[${item.price}]]</span> <span> x[[${item.count}]] </span> <span>[[${item.hasStock?'有货':'无货'}]]</span></p>
 						<p> <span th:each="attr:${item.skuAttr}">[[${attr}]] </span>
 							<span>0.095kg</span>
 						</p>
@@ -708,9 +708,9 @@
 		<div class="xia">
 			<div class="qian">
 				<p class="qian_y">
-					<span>1</span>
+					<span>[[${confirmVo.getCountNum()}]]</span>
 					<span>件商品，总商品金额：</span>
-					<span class="rmb">￥28.90</span>
+					<span class="rmb">[[${confirmVo.getTotal()}]]</span>
 				</p>
 				<p class="qian_y">
 					<span>返现：</span>
@@ -732,7 +732,7 @@
 			</div>
 
 			<div class="yfze">
-				<p class="yfze_a"><span class="z">应付总额：</span><span class="hq">￥28.90</span></p>
+				<p class="yfze_a"><span class="z">应付总额：</span><span class="hq">￥[[${confirmVo.getPayTotal()}]]</span></p>
 				<p class="yfze_b">寄送至： 北京 朝阳区 三环到四环之间 朝阳北路复兴国际大厦23层麦田房产 IT-中心研发二部 收货人：赵存权 188****5052</p>
 			</div>
 			<button class="tijiao">提交订单</button>

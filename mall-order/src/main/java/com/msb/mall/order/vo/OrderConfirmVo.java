@@ -23,6 +23,17 @@ public class OrderConfirmVo {
     // 发票信息
     // 优惠信息
 
+    //Integer countNum;
+    public Integer getCountNum() {
+        int count = 0;
+        if (items != null) {
+            for (OrderItemVo item : items) {
+                count += item.getCount();
+            }
+        }
+        return count;
+    }
+
     // BigDecimal total;// 总的金额
     public BigDecimal getTotal() {
         BigDecimal sum = new BigDecimal(0);
