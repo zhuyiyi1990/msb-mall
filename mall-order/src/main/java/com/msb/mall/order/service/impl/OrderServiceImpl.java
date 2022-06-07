@@ -1,7 +1,9 @@
 package com.msb.mall.order.service.impl;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.msb.common.constant.OrderConstant;
 import com.msb.common.vo.MemberVO;
+import com.msb.mall.order.dto.OrderCreateTO;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
@@ -123,11 +125,52 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
                 , vo.getOrderToken());
         if (result == 0) {
             // 表示验证失败 说明是重复提交
+            responseVO.setCode(1);
             return responseVO;
         }
-        // 是第一次提交 令牌验证成功 开始下订单的操作
+        // 创建订单
+        OrderCreateTO orderCreateTO = createOrder(vo);
         // 2.下订单操作
         return null;
+    }
+
+    /**
+     * 创建订单的方法
+     *
+     * @param vo
+     * @return
+     */
+    private OrderCreateTO createOrder(OrderSubmitVO vo) {
+        OrderCreateTO createTO = new OrderCreateTO();
+        // 创建订单
+        OrderEntity orderEntity = buildOrder(vo);
+        createTO.setOrderEntity(orderEntity);
+        // 创建OrderItemEntity
+        return createTO;
+    }
+
+    private OrderEntity buildOrder(OrderSubmitVO vo) {
+        // 创建OrderEntity
+        OrderEntity orderEntity = new OrderEntity();
+        // 创建订单编号
+        String orderSn = IdWorker.getTimeId();
+        orderEntity.setOrderSn(orderSn);
+        MemberVO memberVO = AuthInterceptor.threadLocal.get();
+        // 设置会员相关的信息
+        orderEntity.setMemberId(memberVO.getId());
+        orderEntity.setMemberUsername(memberVO.getUsername());
+        // 根据收货地址ID获取收获地址的详细信息
+        MemberAddressVo memberAddressVo = memberFeignService.getAddressById(vo.getAddrId());
+        orderEntity.setReceiverCity(memberAddressVo.getCity());
+        orderEntity.setReceiverDetailAddress(memberAddressVo.getDetailAddress());
+        orderEntity.setReceiverName(memberAddressVo.getName());
+        orderEntity.setReceiverPhone(memberAddressVo.getPhone());
+        orderEntity.setReceiverPostCode(memberAddressVo.getPostCode());
+        orderEntity.setReceiverRegion(memberAddressVo.getRegion());
+        orderEntity.setReceiverProvince(memberAddressVo.getProvince());
+        // 设置订单的状态
+        orderEntity.setStatus(OrderConstant.OrderStateEnum.FOR_THE_PAYMENT.getCode());
+        return orderEntity;
     }
 
 }
