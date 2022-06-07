@@ -25,5 +25,5 @@ public class OrderItemVo {
     private BigDecimal totalPrice;
 
     // 商品是否有货
-    private boolean hasStack = true;
+    private boolean hasStock = true;
 }
