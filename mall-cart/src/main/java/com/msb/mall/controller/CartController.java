@@ -9,11 +9,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 public class CartController {
 
     @Autowired
     private ICartService cartService;
+
+    @GetMapping("/getUserCartItems")
+    public List<CartItem> getUserCartItems() {
+        return cartService.getUserCartItems();
+    }
 
     @GetMapping("/cart_list")
     public String queryCartList(Model model) {

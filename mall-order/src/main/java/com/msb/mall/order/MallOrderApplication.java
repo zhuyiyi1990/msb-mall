@@ -8,7 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 /**
- * basePackages 制定Fegin接口的路径
+ * basePackages 制定Feign接口的路径
  */
 @EnableRedisHttpSession
 @EnableFeignClients(basePackages = "com.msb.mall.order.feign")
