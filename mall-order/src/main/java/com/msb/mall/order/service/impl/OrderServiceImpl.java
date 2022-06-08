@@ -31,6 +31,7 @@ import com.msb.common.utils.Query;
 import com.msb.mall.order.dao.OrderDao;
 import com.msb.mall.order.entity.OrderEntity;
 import com.msb.mall.order.service.OrderService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -111,6 +112,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     // private Lock lock = new ReentrantLock();
 
+    @Transactional
     @Override
     public OrderResponseVO submitOrder(OrderSubmitVO vo) {
         // 需要返回响应的对象
