@@ -6,7 +6,8 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.common.dto.SkuHasStockDto;
-import com.msb.mall.ware.vo.LockStockResult;
+import com.msb.common.exception.BizCodeEnum;
+import com.msb.mall.ware.exception.NoStockException;
 import com.msb.mall.ware.vo.WareSkuLockVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -31,9 +32,14 @@ public class WareSkuController {
     private WareSkuService wareSkuService;
 
     @GetMapping("/lock/order")
-    public List<LockStockResult> orderLockStock(@RequestBody WareSkuLockVO vo) {
-        List<LockStockResult> results = wareSkuService.orderLockStock(vo);
-        return results;
+    public R orderLockStock(@RequestBody WareSkuLockVO vo) {
+        try {
+            Boolean flag = wareSkuService.orderLockStock(vo);
+        } catch (NoStockException e) {
+            // 表示锁定库存失败
+            return R.error(BizCodeEnum.NO_STOCK_EXCEPTION.getCode(), BizCodeEnum.NO_STOCK_EXCEPTION.getMsg());
+        }
+        return R.ok();
     }
 
     /**

@@ -2,8 +2,8 @@ package com.msb.mall.ware.service.impl;
 
 import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.utils.R;
+import com.msb.mall.ware.exception.NoStockException;
 import com.msb.mall.ware.feign.ProductFeignService;
-import com.msb.mall.ware.vo.LockStockResult;
 import com.msb.mall.ware.vo.OrderItemVo;
 import com.msb.mall.ware.vo.WareSkuLockVO;
 import lombok.Data;
@@ -113,25 +113,60 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * @return
      */
     @Override
-    public List<LockStockResult> orderLockStock(WareSkuLockVO vo) {
+    public Boolean orderLockStock(WareSkuLockVO vo) {
         List<OrderItemVo> items = vo.getItems();
         // 首先找到具有库存的仓库
         List<SkuWareHasStock> collect = items.stream().map(item -> {
             SkuWareHasStock skuWareHasStock = new SkuWareHasStock();
             skuWareHasStock.setSkuId(item.getSkuId());
-            List<Long> wareIds = this.baseMapper.listHashStock(item.getSkuId());
-            skuWareHasStock.setWareIds(wareIds);
+            List<WareSkuEntity> wareSkuEntities = this.baseMapper.listHashStock(item.getSkuId());
+            skuWareHasStock.setWareSkuEntities(wareSkuEntities);
+            skuWareHasStock.setNum(item.getCount());
             return skuWareHasStock;
         }).collect(Collectors.toList());
         // 尝试锁定库存
-        return null;
+        for (SkuWareHasStock skuWareHasStock : collect) {
+            Long skuId = skuWareHasStock.getSkuId();
+            List<WareSkuEntity> wareSkuEntities = skuWareHasStock.getWareSkuEntities();
+            if (wareSkuEntities == null || wareSkuEntities.size() == 0) {
+                // 当前商品没有库存了
+                throw new NoStockException(skuId);
+            }
+            // 当前需要锁定的商品的数量
+            Integer count = skuWareHasStock.getNum();
+            Boolean skuStocked = false; // 表示当前SkuId的库存没有锁定完成
+            for (WareSkuEntity wareSkuEntity : wareSkuEntities) {
+                // 循环获取到相应的仓库，然后需要锁定仓库
+                // 获取当前仓库能够锁定的库存数
+                Integer canStock = wareSkuEntity.getStock() - wareSkuEntity.getStockLocked();
+                if (count < canStock) {
+                    // 表示当前的skuId的商品的数量小于等于需要锁定的数量
+                    Integer i = this.baseMapper.lockSkuStock(skuId, wareSkuEntity.getWareId(), count);
+                    count = 0;
+                    skuStocked = true;
+                } else {
+                    // 需要锁定的库存大于 可以锁定的库存 就按照已有的库存来锁定
+                    Integer i = this.baseMapper.lockSkuStock(skuId, wareSkuEntity.getWareId(), canStock);
+                    count = count - canStock;
+                }
+                if (count <= 0) {
+                    // 表示所有的商品都锁定了
+                    break;
+                }
+            }
+            if (skuStocked == false) {
+                // 表示上一个商品没有锁定库存成功
+                throw new NoStockException(skuId);
+            }
+        }
+        return true;
     }
 
     @Data
     class SkuWareHasStock {
         private Long skuId;
         private Integer num;
-        private List<Long> wareIds;
+        private List<WareSkuEntity> wareSkuEntities;
     }
 
 }

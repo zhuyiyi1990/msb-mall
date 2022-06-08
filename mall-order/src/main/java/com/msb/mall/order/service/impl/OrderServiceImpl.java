@@ -2,6 +2,7 @@ package com.msb.mall.order.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.msb.common.constant.OrderConstant;
+import com.msb.common.utils.R;
 import com.msb.common.vo.MemberVO;
 import com.msb.mall.order.dto.OrderCreateTO;
 import com.msb.mall.order.entity.OrderItemEntity;
@@ -161,8 +162,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             return itemVo;
         }).collect(Collectors.toList());
         wareSkuLockVO.setItems(orderItemVos);
-        List<LockStockResult> lockStockResults = wareFeignService.orderLockStock(wareSkuLockVO);
-        if (lockStockResults != null && lockStockResults.size() > 0) {
+        R r = wareFeignService.orderLockStock(wareSkuLockVO);
+        if (r.getCode() == 0) {
             // 表示锁定库存成功
         } else {
             // 表示锁定库存失败
