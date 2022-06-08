@@ -8,6 +8,7 @@ import com.msb.mall.order.entity.OrderItemEntity;
 import com.msb.mall.order.feign.CartFeignService;
 import com.msb.mall.order.feign.MemberFeignService;
 import com.msb.mall.order.feign.ProductService;
+import com.msb.mall.order.feign.WareFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
 import com.msb.mall.order.service.OrderItemService;
 import com.msb.mall.order.vo.*;
@@ -54,6 +55,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     OrderItemService orderItemService;
+
+    @Autowired
+    WareFeignService wareFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -143,6 +147,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 3.保存订单信息
         saveOrder(orderCreateTO);
         // 4.锁定库存信息
+        // 订单号  SKU_ID  SKU_NAME 商品数量
+        // 封装 WareSkuLockVO 对象
+        WareSkuLockVO wareSkuLockVO = new WareSkuLockVO();
+        wareSkuLockVO.setOrderSN(orderCreateTO.getOrderEntity().getOrderSn());
+        List<OrderItemVo> orderItemVos = orderCreateTO.getOrderItemEntities().stream().map(item -> {
+            OrderItemVo itemVo = new OrderItemVo();
+            itemVo.setSkuId(item.getSkuId());
+            itemVo.setTitle(item.getSkuName());
+            itemVo.setCount(item.getSkuQuantity());
+            return itemVo;
+        }).collect(Collectors.toList());
+        wareSkuLockVO.setItems(orderItemVos);
+        List<LockStockResult> lockStockResults = wareFeignService.orderLockStock(wareSkuLockVO);
+        if (lockStockResults != null && lockStockResults.size() > 0) {
+            // 表示锁定库存成功
+        } else {
+            // 表示锁定库存失败
+        }
         return null;
     }
 

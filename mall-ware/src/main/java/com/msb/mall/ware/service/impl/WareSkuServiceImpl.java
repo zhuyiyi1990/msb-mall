@@ -3,6 +3,8 @@ package com.msb.mall.ware.service.impl;
 import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.utils.R;
 import com.msb.mall.ware.feign.ProductFeignService;
+import com.msb.mall.ware.vo.LockStockResult;
+import com.msb.mall.ware.vo.WareSkuLockVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -90,6 +92,11 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
             return dto;
         }).collect(Collectors.toList());
         return list;
+    }
+
+    @Override
+    public List<LockStockResult> orderLockStock(WareSkuLockVO vo) {
+        return null;
     }
 
 }

@@ -6,6 +6,8 @@ import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.common.dto.SkuHasStockDto;
+import com.msb.mall.ware.vo.LockStockResult;
+import com.msb.mall.ware.vo.WareSkuLockVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,6 +29,24 @@ public class WareSkuController {
 
     @Autowired
     private WareSkuService wareSkuService;
+
+    @GetMapping("/lock/order")
+    public List<LockStockResult> orderLockStock(@RequestBody WareSkuLockVO vo) {
+        List<LockStockResult> results = wareSkuService.orderLockStock(vo);
+        return results;
+    }
+
+    /**
+     * 查询对应的skuId是否有库存
+     *
+     * @param skuIds
+     * @return
+     */
+    @PostMapping("/hasStock")
+    public List<SkuHasStockDto> getSkusHasStock(@RequestBody List<Long> skuIds) {
+        List<SkuHasStockDto> list = wareSkuService.getSkusHasStock(skuIds);
+        return list;
+    }
 
     /**
      * 列表
@@ -76,12 +96,6 @@ public class WareSkuController {
     public R delete(@RequestBody Long[] ids) {
         wareSkuService.removeByIds(Arrays.asList(ids));
         return R.ok();
-    }
-
-    @PostMapping("/hasStock")
-    public List<SkuHasStockDto> getSkusHasStock(@RequestBody List<Long> skuIds) {
-        List<SkuHasStockDto> list = wareSkuService.getSkusHasStock(skuIds);
-        return list;
     }
 
 }
