@@ -1,8 +1,8 @@
 package com.msb.mall.ware.service.impl;
 
 import com.msb.common.dto.SkuHasStockDto;
+import com.msb.common.exception.NoStockException;
 import com.msb.common.utils.R;
-import com.msb.mall.ware.exception.NoStockException;
 import com.msb.mall.ware.feign.ProductFeignService;
 import com.msb.mall.ware.vo.OrderItemVo;
 import com.msb.mall.ware.vo.WareSkuLockVO;
@@ -23,6 +23,7 @@ import com.msb.common.utils.Query;
 import com.msb.mall.ware.dao.WareSkuDao;
 import com.msb.mall.ware.entity.WareSkuEntity;
 import com.msb.mall.ware.service.WareSkuService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service("wareSkuService")
@@ -112,6 +113,7 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
      * @param vo
      * @return
      */
+    @Transactional
     @Override
     public Boolean orderLockStock(WareSkuLockVO vo) {
         List<OrderItemVo> items = vo.getItems();
@@ -153,6 +155,10 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
                     // 表示所有的商品都锁定了
                     break;
                 }
+            }
+            if (count > 0) {
+                // 说明库存没有锁定完
+                throw new NoStockException(skuId);
             }
             if (skuStocked == false) {
                 // 表示上一个商品没有锁定库存成功

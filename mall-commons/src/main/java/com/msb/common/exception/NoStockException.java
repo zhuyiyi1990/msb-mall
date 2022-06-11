@@ -1,4 +1,4 @@
-package com.msb.mall.ware.exception;
+package com.msb.common.exception;
 
 public class NoStockException extends RuntimeException {
 

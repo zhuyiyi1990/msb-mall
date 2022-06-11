@@ -7,7 +7,7 @@ import java.util.Map;
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import com.msb.common.dto.SkuHasStockDto;
 import com.msb.common.exception.BizCodeEnum;
-import com.msb.mall.ware.exception.NoStockException;
+import com.msb.common.exception.NoStockException;
 import com.msb.mall.ware.vo.WareSkuLockVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -2,6 +2,7 @@ package com.msb.mall.order.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.msb.common.constant.OrderConstant;
+import com.msb.common.exception.NoStockException;
 import com.msb.common.utils.R;
 import com.msb.common.vo.MemberVO;
 import com.msb.mall.order.dto.OrderCreateTO;
@@ -147,9 +148,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         }
         // 2.创建订单和订单项信息
         OrderCreateTO orderCreateTO = createOrder(vo);
+        responseVO.setOrderEntity(orderCreateTO.getOrderEntity());
         // 3.保存订单信息
         saveOrder(orderCreateTO);
-        responseVO.setOrderEntity(orderCreateTO.getOrderEntity());
         // 4.锁定库存信息
         // 订单号  SKU_ID  SKU_NAME 商品数量
         // 封装 WareSkuLockVO 对象
@@ -171,6 +172,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         } else {
             // 表示锁定库存失败
             responseVO.setCode(2); // 表示库存不足，锁定失败
+            throw new NoStockException(10000L);
         }
         return responseVO;
     }

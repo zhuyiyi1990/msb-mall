@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class OrderWebController {
@@ -25,7 +26,7 @@ public class OrderWebController {
     }
 
     @PostMapping("/orderSubmit")
-    public String orderSubmit(OrderSubmitVO vo, Model model) {
+    public String orderSubmit(OrderSubmitVO vo, Model model, RedirectAttributes redirectAttributes) {
         System.out.println("vo = " + vo);
         OrderResponseVO responseVO = orderService.submitOrder(vo);
         Integer code = responseVO.getCode();
@@ -35,6 +36,14 @@ public class OrderWebController {
             return "pay";
         } else {
             System.out.println("code = " + code);
+            String msg = "订单失败";
+            if (code == 1) {
+                msg = msg + ":重复提交";
+            } else if (code == 2) {
+                msg = msg + ":锁定库存失败";
+            }
+            //redirectAttributes.addAttribute("msg", msg);
+            redirectAttributes.addFlashAttribute("msg", msg);
             // 表示下单操作失败
             return "redirect:http://order.msb.com/toTrade";
         }
