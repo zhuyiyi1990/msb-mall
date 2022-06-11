@@ -149,6 +149,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         OrderCreateTO orderCreateTO = createOrder(vo);
         // 3.保存订单信息
         saveOrder(orderCreateTO);
+        responseVO.setOrderEntity(orderCreateTO.getOrderEntity());
         // 4.锁定库存信息
         // 订单号  SKU_ID  SKU_NAME 商品数量
         // 封装 WareSkuLockVO 对象
@@ -162,13 +163,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             return itemVo;
         }).collect(Collectors.toList());
         wareSkuLockVO.setItems(orderItemVos);
+        // 远程锁库存的操作
         R r = wareFeignService.orderLockStock(wareSkuLockVO);
         if (r.getCode() == 0) {
             // 表示锁定库存成功
+            responseVO.setCode(0); // 表示 创建订单成功
         } else {
             // 表示锁定库存失败
+            responseVO.setCode(2); // 表示库存不足，锁定失败
         }
-        return null;
+        return responseVO;
     }
 
     /**

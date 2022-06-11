@@ -25,13 +25,16 @@ public class OrderWebController {
     }
 
     @PostMapping("/orderSubmit")
-    public String orderSubmit(OrderSubmitVO vo) {
+    public String orderSubmit(OrderSubmitVO vo, Model model) {
         System.out.println("vo = " + vo);
         OrderResponseVO responseVO = orderService.submitOrder(vo);
-        if (responseVO.getCode() == 0) {
+        Integer code = responseVO.getCode();
+        if (code == 0) {
+            model.addAttribute("orderResponseVO", responseVO);
             // 表示下单操作成功
             return "pay";
         } else {
+            System.out.println("code = " + code);
             // 表示下单操作失败
             return "redirect:http://order.msb.com/toTrade";
         }
