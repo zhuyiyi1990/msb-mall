@@ -33,6 +33,7 @@ import com.msb.common.utils.Query;
 import com.msb.mall.order.dao.OrderDao;
 import com.msb.mall.order.entity.OrderEntity;
 import com.msb.mall.order.service.OrderService;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestAttributes;
@@ -114,7 +115,24 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     // private Lock lock = new ReentrantLock();
 
-    @Transactional
+    @Transactional // 事务A
+    public void a() {
+        b(); // 共用事务A
+        c(); // 事务C
+        int a = 10 / 0; // 事务C不会回滚
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void b() {
+
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void c() {
+
+    }
+
+    @Transactional(/*propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ*/)
     @Override
     public OrderResponseVO submitOrder(OrderSubmitVO vo) throws NoStockException {
         // 需要返回响应的对象
