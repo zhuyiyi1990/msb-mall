@@ -1,5 +1,6 @@
 package com.msb.mall.order.web;
 
+import com.msb.common.exception.NoStockException;
 import com.msb.mall.order.service.OrderService;
 import com.msb.mall.order.vo.OrderConfirmVo;
 import com.msb.mall.order.vo.OrderResponseVO;
@@ -28,8 +29,14 @@ public class OrderWebController {
     @PostMapping("/orderSubmit")
     public String orderSubmit(OrderSubmitVO vo, Model model, RedirectAttributes redirectAttributes) {
         System.out.println("vo = " + vo);
-        OrderResponseVO responseVO = orderService.submitOrder(vo);
-        Integer code = responseVO.getCode();
+        Integer code = 0;
+        OrderResponseVO responseVO = null;
+        try {
+            responseVO = orderService.submitOrder(vo);
+            code = responseVO.getCode();
+        } catch (NoStockException e) {
+            code = 2;
+        }
         if (code == 0) {
             model.addAttribute("orderResponseVO", responseVO);
             // 表示下单操作成功

@@ -116,7 +116,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Transactional
     @Override
-    public OrderResponseVO submitOrder(OrderSubmitVO vo) {
+    public OrderResponseVO submitOrder(OrderSubmitVO vo) throws NoStockException {
         // 需要返回响应的对象
         OrderResponseVO responseVO = new OrderResponseVO();
         // 获取当前登录的用户信息
