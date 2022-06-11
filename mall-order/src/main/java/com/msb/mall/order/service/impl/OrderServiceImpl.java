@@ -14,6 +14,7 @@ import com.msb.mall.order.feign.WareFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
 import com.msb.mall.order.service.OrderItemService;
 import com.msb.mall.order.vo.*;
+import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -115,10 +116,15 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     // private Lock lock = new ReentrantLock();
 
+    /**
+     * 在service中调用自身的其他事务方法的时候，事务的传播行为会失效
+     * 因为会绕过代理对象的处理
+     */
     @Transactional // 事务A
     public void a() {
-        b(); // 共用事务A
-        c(); // 事务C
+        OrderServiceImpl o = (OrderServiceImpl) AopContext.currentProxy();
+        o.b(); // 共用事务A
+        o.c(); // 事务C
         int a = 10 / 0; // 事务C不会回滚
     }
 
