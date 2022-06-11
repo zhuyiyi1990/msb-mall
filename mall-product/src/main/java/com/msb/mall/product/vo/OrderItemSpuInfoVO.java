@@ -5,6 +5,8 @@ package com.msb.mall.product.vo;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * Auto-generated: 2022-01-18 14:49:13
  *
@@ -12,7 +14,7 @@ import lombok.Data;
  * @website http://www.json.cn/java2pojo/
  */
 @Data
-public class OrderItemSpuInfoVO {
+public class OrderItemSpuInfoVO implements Serializable {
 
     private Long id;
 

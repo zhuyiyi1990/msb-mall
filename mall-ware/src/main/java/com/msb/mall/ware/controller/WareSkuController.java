@@ -31,7 +31,7 @@ public class WareSkuController {
     @Autowired
     private WareSkuService wareSkuService;
 
-    @GetMapping("/lock/order")
+    @PostMapping("/lock/order")
     public R orderLockStock(@RequestBody WareSkuLockVO vo) {
         try {
             Boolean flag = wareSkuService.orderLockStock(vo);

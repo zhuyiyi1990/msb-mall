@@ -42,6 +42,14 @@ public class CartItem {
         this.skuId = skuId;
     }
 
+    public Long getSpuId() {
+        return spuId;
+    }
+
+    public void setSpuId(Long spuId) {
+        this.spuId = spuId;
+    }
+
     public String getImage() {
         return image;
     }

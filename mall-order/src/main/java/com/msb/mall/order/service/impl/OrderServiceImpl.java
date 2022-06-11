@@ -136,7 +136,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         } finally {
             lock.unlock(); //释放锁
         }*/
-        String script = "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0";
+        String script = "if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('del',KEYS[1]) else return 0 end";
         Long result = redisTemplate.execute(new DefaultRedisScript<Long>(script, Long.class)
                 , Arrays.asList(key)
                 , vo.getOrderToken());
@@ -218,13 +218,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         if (userCartItems != null && userCartItems.size() > 0) {
             // 统一根据SKUID查询出对应的SPU的信息
             List<Long> spuIds = new ArrayList<>();
-            for (OrderItemEntity orderItemEntity : orderItemEntities) {
-                if (!spuIds.contains(orderItemEntity.getSpuId())) {
-                    spuIds.add(orderItemEntity.getOrderId());
+            for (OrderItemVo orderItemVo : userCartItems) {
+                if (!spuIds.contains(orderItemVo.getSpuId())) {
+                    spuIds.add(orderItemVo.getSpuId());
                 }
             }
+            Long[] spuIdsArray = new Long[spuIds.size()];
+            spuIdsArray = spuIds.toArray(spuIdsArray);
+            System.out.println("---->" + spuIdsArray.length);
             // 远程调用商品服务获取到对应的SPU信息
-            List<OrderItemSpuInfoVO> spuInfos = productService.getOrderItemSpuInfoBySpuId((Long[]) spuIds.toArray());
+            List<OrderItemSpuInfoVO> spuInfos = productService.getOrderItemSpuInfoBySpuId(spuIdsArray);
             Map<Long, OrderItemSpuInfoVO> map = spuInfos.stream().collect(Collectors.toMap(OrderItemSpuInfoVO::getId, item -> item));
             for (OrderItemVo userCartItem : userCartItems) {
                 // 获取到商品信息对应的 SPU信息
