@@ -14,6 +14,7 @@ import com.msb.mall.order.feign.WareFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
 import com.msb.mall.order.service.OrderItemService;
 import com.msb.mall.order.vo.*;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -138,6 +139,14 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     }
 
+    /**
+     * Seata分布式事务管理 我们需要通过 @GlobalTransactional 修饰
+     *
+     * @param vo
+     * @return
+     * @throws NoStockException
+     */
+    @GlobalTransactional
     @Transactional(/*propagation = Propagation.REQUIRED, isolation = Isolation.REPEATABLE_READ*/)
     @Override
     public OrderResponseVO submitOrder(OrderSubmitVO vo) throws NoStockException {
@@ -178,6 +187,20 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 4.锁定库存信息
         // 订单号  SKU_ID  SKU_NAME 商品数量
         // 封装 WareSkuLockVO 对象
+        lockWareSkuStock(responseVO, orderCreateTO);
+        // 5.同步更新用户的会员积分
+        // int i = 1 / 0;
+        return responseVO;
+    }
+
+    /**
+     * 锁定库存的方法
+     *
+     * @param responseVO
+     * @param orderCreateTO
+     * @throws NoStockException
+     */
+    private void lockWareSkuStock(OrderResponseVO responseVO, OrderCreateTO orderCreateTO) throws NoStockException {
         WareSkuLockVO wareSkuLockVO = new WareSkuLockVO();
         wareSkuLockVO.setOrderSN(orderCreateTO.getOrderEntity().getOrderSn());
         List<OrderItemVo> orderItemVos = orderCreateTO.getOrderItemEntities().stream().map(item -> {
@@ -198,7 +221,6 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
             responseVO.setCode(2); // 表示库存不足，锁定失败
             throw new NoStockException(10000L);
         }
-        return responseVO;
     }
 
     /**

@@ -8,6 +8,9 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.248.100:8848
+    alibaba:
+      seata:
+        tx-service-group: mall-ware-group
   application:
     name: mall-ware
   jackson:
@@ -21,3 +24,8 @@ mybatis-plus:
 
 server:
   port: 8050
+
+seata:
+  service:
+    grouplist:
+      default: 192.168.248.100:8091

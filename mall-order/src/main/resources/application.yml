@@ -9,6 +9,9 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.248.100:8848
+    alibaba:
+      seata:
+        tx-service-group: mall-order-group
   application:
     name: mall-order
   session:
@@ -34,3 +37,8 @@ server:
 user:
   userName: zhangsan
   age: 18
+
+seata:
+  service:
+    grouplist:
+      default: 192.168.248.100:8091
