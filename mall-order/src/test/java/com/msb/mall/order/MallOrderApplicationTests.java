@@ -68,4 +68,48 @@ class MallOrderApplicationTests {
         Thread.sleep(Integer.MAX_VALUE);
     }
 
+    @Test
+    public void consumerDelayMSG() throws Exception {
+        // 实例化消费者
+        DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("ExampleConsumer");
+        // 设置NameServer的地址
+        consumer.setNamesrvAddr("192.168.248.100:9876");
+        // 订阅Topics
+        consumer.subscribe("TestTopicDelay", "*");
+        // 注册消息监听者
+        consumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> messages, ConsumeConcurrentlyContext context) {
+                for (MessageExt message : messages) {
+                    // Print approximate delay time period
+                    System.out.println("Receive message[msgId=" + message.getMsgId() + "] " + (System.currentTimeMillis() - message.getBornTimestamp()) + "ms later");
+                }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+        // 启动消费者
+        consumer.start();
+        Thread.sleep(Integer.MAX_VALUE);
+    }
+
+    @Test
+    public void producerDelayMSG() throws Exception {
+        // 实例化一个生产者来产生延时消息
+        DefaultMQProducer producer = new DefaultMQProducer("ExampleProducerGroup");
+        // 设置NameServer的地址
+        producer.setNamesrvAddr("192.168.248.100:9876");
+        // 启动生产者
+        producer.start();
+        int totalMessagesToSend = 100;
+        for (int i = 0; i < totalMessagesToSend; i++) {
+            Message message = new Message("TestTopicDelay", ("Hello scheduled message " + i).getBytes());
+            // 设置延时等级3,这个消息将在10s之后发送(现在只支持固定的几个时间,详看delayTimeLevel)
+            message.setDelayTimeLevel(4);
+            // 发送消息
+            producer.send(message);
+        }
+        // 关闭生产者
+        producer.shutdown();
+    }
+
 }
