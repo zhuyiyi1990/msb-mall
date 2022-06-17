@@ -13,6 +13,7 @@ import com.msb.mall.order.feign.ProductService;
 import com.msb.mall.order.feign.WareFeignService;
 import com.msb.mall.order.interceptor.AuthInterceptor;
 import com.msb.mall.order.service.OrderItemService;
+import com.msb.mall.order.utils.OrderMsgProducer;
 import com.msb.mall.order.vo.*;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.aop.framework.AopContext;
@@ -58,6 +59,9 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+    @Autowired
+    OrderMsgProducer orderMsgProducer;
 
     @Autowired
     OrderItemService orderItemService;
@@ -190,6 +194,8 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         lockWareSkuStock(responseVO, orderCreateTO);
         // 5.同步更新用户的会员积分
         // int i = 1 / 0;
+        // 订单成功后需要给 消息中间件发送延迟30分钟的关单消息
+        orderMsgProducer.sendOrderMessage(orderCreateTO.getOrderEntity().getOrderSn());
         return responseVO;
     }
 
