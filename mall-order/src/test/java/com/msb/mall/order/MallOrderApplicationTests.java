@@ -103,7 +103,7 @@ class MallOrderApplicationTests {
         int totalMessagesToSend = 100;
         for (int i = 0; i < totalMessagesToSend; i++) {
             Message message = new Message("TestTopicDelay", ("Hello scheduled message " + i).getBytes());
-            // 设置延时等级3,这个消息将在10s之后发送(现在只支持固定的几个时间,详看delayTimeLevel)
+            // 设置延时等级4,这个消息将在30s之后发送(现在只支持固定的几个时间,详看delayTimeLevel)
             message.setDelayTimeLevel(4);
             // 发送消息
             producer.send(message);
