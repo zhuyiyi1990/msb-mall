@@ -23,6 +23,7 @@ import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -207,7 +208,10 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 通过订单信息封装PayVO对象
         PayVo payVo = new PayVo();
         payVo.setOut_trader_no(orderSn);
-        // payVo.setTotal_amount(orderEntity.getTotalAmount()); TODO
+        payVo.setTotal_amount(orderEntity.getTotalAmount().setScale(2, RoundingMode.UP).toString());
+        // 订单名称和订单描述
+        payVo.setSubject(orderEntity.getOrderSn());
+        payVo.setBody(orderEntity.getOrderSn());
         return payVo;
     }
 
@@ -273,6 +277,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         for (OrderItemEntity orderItemEntity : orderItemEntities) {
             total_amount.add(orderItemEntity.getSkuPrice().multiply(new BigDecimal(orderItemEntity.getSkuQuantity())));
         }
+        orderEntity.setTotalAmount(total_amount);
         createTO.setOrderItemEntities(orderItemEntities);
         return createTO;
     }
@@ -360,7 +365,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderEntity.setReceiverPostCode(memberAddressVo.getPostCode());
         orderEntity.setReceiverRegion(memberAddressVo.getRegion());
         orderEntity.setReceiverProvince(memberAddressVo.getProvince());
-        // 顶单总额 TODO
+        // 顶单总额
         // 设置订单的状态
         orderEntity.setStatus(OrderConstant.OrderStateEnum.FOR_THE_PAYMENT.getCode());
         return orderEntity;
