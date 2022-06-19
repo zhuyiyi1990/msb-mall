@@ -7,6 +7,7 @@ import com.msb.mall.order.entity.OrderEntity;
 import com.msb.mall.order.vo.OrderConfirmVo;
 import com.msb.mall.order.vo.OrderResponseVO;
 import com.msb.mall.order.vo.OrderSubmitVO;
+import com.msb.mall.order.vo.PayVo;
 
 import java.util.Map;
 
@@ -29,5 +30,7 @@ public interface OrderService extends IService<OrderEntity> {
     OrderConfirmVo confirmOrder();
 
     OrderResponseVO submitOrder(OrderSubmitVO vo) throws NoStockException;
+
+    PayVo getOrderPay(String orderSn);
 
 }

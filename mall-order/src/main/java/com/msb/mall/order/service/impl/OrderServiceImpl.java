@@ -22,6 +22,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -199,6 +200,17 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         return responseVO;
     }
 
+    @Override
+    public PayVo getOrderPay(String orderSn) {
+        // 根据订单号查询相关的订单信息
+        OrderEntity orderEntity = this.getBaseMapper().getOrderByOrderSn(orderSn);
+        // 通过订单信息封装PayVO对象
+        PayVo payVo = new PayVo();
+        payVo.setOut_trader_no(orderSn);
+        // payVo.setTotal_amount(orderEntity.getTotalAmount()); TODO
+        return payVo;
+    }
+
     /**
      * 锁定库存的方法
      *
@@ -256,6 +268,11 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         createTO.setOrderEntity(orderEntity);
         // 创建OrderItemEntity 订单项
         List<OrderItemEntity> orderItemEntities = buildOrderItems(orderEntity.getOrderSn());
+        // 根据订单项计算出支付总额
+        BigDecimal total_amount = new BigDecimal(0);
+        for (OrderItemEntity orderItemEntity : orderItemEntities) {
+            total_amount.add(orderItemEntity.getSkuPrice().multiply(new BigDecimal(orderItemEntity.getSkuQuantity())));
+        }
         createTO.setOrderItemEntities(orderItemEntities);
         return createTO;
     }
@@ -320,6 +337,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 积分信息
         entity.setGiftGrowth(userCartItem.getPrice().intValue());
         entity.setGiftIntegration(userCartItem.getPrice().intValue());
+        entity.setSkuPrice(userCartItem.getPrice());
         return entity;
     }
 
@@ -342,6 +360,7 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         orderEntity.setReceiverPostCode(memberAddressVo.getPostCode());
         orderEntity.setReceiverRegion(memberAddressVo.getRegion());
         orderEntity.setReceiverProvince(memberAddressVo.getProvince());
+        // 顶单总额 TODO
         // 设置订单的状态
         orderEntity.setStatus(OrderConstant.OrderStateEnum.FOR_THE_PAYMENT.getCode());
         return orderEntity;
