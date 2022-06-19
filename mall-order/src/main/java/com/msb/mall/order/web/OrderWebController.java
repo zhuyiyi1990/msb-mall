@@ -74,14 +74,14 @@ public class OrderWebController {
      * @param orderSn
      * @return
      */
-    @GetMapping("/payOrder")
+    @GetMapping(value = "/payOrder", produces = "text/html")
     @ResponseBody
     public String payOrder(@RequestParam("orderSn") String orderSn) {
         // 根据订单编号查询出相关的订单信息，封装到PayVO中
         PayVo payVo = orderService.getOrderPay(orderSn);
         String pay = alipayTemplate.pay(payVo);
         System.out.println(pay);
-        return "hello:" + pay;
+        return pay;
     }
 
 }

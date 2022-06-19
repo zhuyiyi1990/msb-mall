@@ -273,11 +273,12 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         // 创建OrderItemEntity 订单项
         List<OrderItemEntity> orderItemEntities = buildOrderItems(orderEntity.getOrderSn());
         // 根据订单项计算出支付总额
-        BigDecimal total_amount = new BigDecimal(0);
+        BigDecimal totalAmount = new BigDecimal(0);
         for (OrderItemEntity orderItemEntity : orderItemEntities) {
-            total_amount.add(orderItemEntity.getSkuPrice().multiply(new BigDecimal(orderItemEntity.getSkuQuantity())));
+            BigDecimal total = orderItemEntity.getSkuPrice().multiply(new BigDecimal(orderItemEntity.getSkuQuantity()));
+            totalAmount = totalAmount.add(total);
         }
-        orderEntity.setTotalAmount(total_amount);
+        orderEntity.setTotalAmount(totalAmount);
         createTO.setOrderItemEntities(orderItemEntities);
         return createTO;
     }
