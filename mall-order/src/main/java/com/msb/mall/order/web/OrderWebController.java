@@ -1,5 +1,7 @@
 package com.msb.mall.order.web;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
+import com.msb.common.constant.OrderConstant;
 import com.msb.common.exception.NoStockException;
 import com.msb.mall.order.config.AlipayTemplate;
 import com.msb.mall.order.service.OrderService;
@@ -61,9 +63,15 @@ public class OrderWebController {
     }
 
     @GetMapping("/orderPay/returnUrl")
-    public String orderPay(@RequestParam(value = "orderSn", required = false) String orderSn) {
+    public String orderPay(@RequestParam(value = "orderSn", required = false) String orderSn,
+                           @RequestParam(value = "out_trade_no", required = false) String out_trade_no) {
         // TODO 完成相关的支付操作
         System.out.println("orderSn = " + orderSn);
+        if (StringUtils.isNotBlank(orderSn)) {
+            orderService.updateOrderStatus(orderSn, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+        } else {
+            orderService.updateOrderStatus(out_trade_no, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+        }
         return "list";
     }
 

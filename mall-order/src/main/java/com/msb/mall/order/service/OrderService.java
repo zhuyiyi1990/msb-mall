@@ -33,4 +33,6 @@ public interface OrderService extends IService<OrderEntity> {
 
     PayVo getOrderPay(String orderSn);
 
+    void updateOrderStatus(String orderSn, Integer status);
+
 }

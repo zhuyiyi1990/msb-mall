@@ -216,6 +216,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
     }
 
     /**
+     * 更新订单的状态信息
+     *
+     * @param orderSn
+     */
+    @Override
+    public void updateOrderStatus(String orderSn, Integer status) {
+        this.getBaseMapper().updateOrderStatus(orderSn, status);
+    }
+
+    /**
      * 锁定库存的方法
      *
      * @param responseVO
