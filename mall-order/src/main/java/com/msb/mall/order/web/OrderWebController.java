@@ -60,8 +60,8 @@ public class OrderWebController {
         }
     }
 
-    @PostMapping("/orderPay")
-    public String orderPay(@RequestParam("orderSn") String orderSn) {
+    @GetMapping("/orderPay/returnUrl")
+    public String orderPay(@RequestParam(value = "orderSn", required = false) String orderSn) {
         // TODO 完成相关的支付操作
         System.out.println("orderSn = " + orderSn);
         return "list";
