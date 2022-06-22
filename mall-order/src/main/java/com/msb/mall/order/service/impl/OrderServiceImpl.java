@@ -225,6 +225,16 @@ public class OrderServiceImpl extends ServiceImpl<OrderDao, OrderEntity> impleme
         this.getBaseMapper().updateOrderStatus(orderSn, status);
     }
 
+    @Override
+    public void handleOrderComplete(String orderSn) {
+        // 1.更新订单状态
+        this.updateOrderStatus(orderSn, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+        // TODO
+        // 2.更新库存信息 库存数量递减
+        // 3.购物车中的已经支付的商品移除
+        // 4.更新会员积分 ....
+    }
+
     /**
      * 锁定库存的方法
      *

@@ -35,4 +35,6 @@ public interface OrderService extends IService<OrderEntity> {
 
     void updateOrderStatus(String orderSn, Integer status);
 
+    void handleOrderComplete(String orderSn);
+
 }

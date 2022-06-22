@@ -68,9 +68,11 @@ public class OrderWebController {
         // TODO 完成相关的支付操作
         System.out.println("orderSn = " + orderSn);
         if (StringUtils.isNotBlank(orderSn)) {
-            orderService.updateOrderStatus(orderSn, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+            //orderService.updateOrderStatus(orderSn, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+            orderService.handleOrderComplete(orderSn);
         } else {
-            orderService.updateOrderStatus(out_trade_no, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+            //orderService.updateOrderStatus(out_trade_no, OrderConstant.OrderStateEnum.TO_SEND_GOODS.getCode());
+            orderService.handleOrderComplete(out_trade_no);
         }
         return "list";
     }
