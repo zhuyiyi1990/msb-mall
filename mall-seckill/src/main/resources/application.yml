@@ -1,0 +1,19 @@
+# 数据库的连接新
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.248.100:8848
+  application:
+    name: mall-seckill
+  redis:
+    host: 192.168.248.100
+    port: 6379
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+
+server:
+  port: 9600

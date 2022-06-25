@@ -1,21 +1,21 @@
 spring:
-    datasource:
-        username: root
-        password: password
-        url: jdbc:mysql://192.168.248.100:3306/mall-sms
-        driver-class-name: com.mysql.cj.jdbc.Driver
-    cloud:
-        nacos:
-            discovery:
-                server-addr: 192.168.248.100:8848
-    application:
-        name: mall-coupon
+  datasource:
+    username: root
+    password: password
+    url: jdbc:mysql://192.168.248.100:3306/mall-sms
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.248.100:8848
+  application:
+    name: mall-coupon
 
 mybatis-plus:
-    mapper-locations: classpath*:/mapper/**/*.xml
-    global-config:
-        db-config:
-            id-type: auto
+  mapper-locations: classpath*:/mapper/**/*.xml
+  global-config:
+    db-config:
+      id-type: auto
 
 server:
-    port: 8010
+  port: 8010

@@ -1,6 +1,6 @@
 spring:
   application:
-    name: mall-gateway
+    name: mall-seckill
   cloud:
     nacos:
       config:
