@@ -32,7 +32,7 @@ public class SeckillSessionServiceImpl extends ServiceImpl<SeckillSessionDao, Se
     }
 
     @Override
-    public List<SeckillSessionEntity> getLatest3Days() {
+    public List<SeckillSessionEntity> getLatest3DaysSession() {
         // 计算未来3天的时间
         return this.list(new QueryWrapper<SeckillSessionEntity>().
                 between("start_time", startTime(), endTime()));

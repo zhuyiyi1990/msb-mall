@@ -18,6 +18,6 @@ public interface SeckillSessionService extends IService<SeckillSessionEntity> {
 
     PageUtils queryPage(Map<String, Object> params);
 
-    List<SeckillSessionEntity> getLatest3Days();
+    List<SeckillSessionEntity> getLatest3DaysSession();
 
 }
