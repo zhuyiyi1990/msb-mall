@@ -21,8 +21,8 @@ public class SeckillServiceImpl implements SeckillService {
         R r = couponFeignService.getLatest3DaysSession();
         if (r.getCode() == 0) {
             // 表示查询操作成功
-            List<SeckillSessionEntity> session = (List<SeckillSessionEntity>) r.get("data");
-            // 2. 上架商品
+            List<SeckillSessionEntity> seckillSessionEntities = (List<SeckillSessionEntity>) r.get("data");
+            // 2. 上架商品  Redis数据保存
         }
     }
 
