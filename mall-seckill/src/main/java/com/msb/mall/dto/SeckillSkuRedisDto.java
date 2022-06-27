@@ -23,4 +23,11 @@ public class SeckillSkuRedisDto {
 
     private SkuInfoVo skuInfoVo;
 
+    private Long startTime;
+
+    private Long endTime;
+
+    // 随机码
+    private String randCode;
+
 }

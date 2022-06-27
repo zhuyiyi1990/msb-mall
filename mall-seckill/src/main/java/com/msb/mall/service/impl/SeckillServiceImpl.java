@@ -8,12 +8,14 @@ import com.msb.mall.feign.ProductFeignService;
 import com.msb.mall.service.SeckillService;
 import com.msb.mall.vo.SeckillSessionEntity;
 import com.msb.mall.vo.SkuInfoVo;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -83,11 +85,18 @@ public class SeckillServiceImpl implements SeckillService {
                     dto.setSkuInfoVo(skuInfoVo);
                 }
                 // 2.获取SKU的秒杀信息
-                dto.setSkuId(item.getSkuId());
+                /*dto.setSkuId(item.getSkuId());
                 dto.setSeckillPrice(item.getSeckillPrice());
                 dto.setSeckillCount(item.getSeckillCount());
                 dto.setSeckillLimit(item.getSeckillLimit());
-                dto.setSeckillSort(item.getSeckillSort());
+                dto.setSeckillSort(item.getSeckillSort());*/
+                BeanUtils.copyProperties(info, dto);
+                // 3.设置当前商品的秒杀时间
+                dto.setStartTime(session.getStartTime().getTime());
+                dto.setEndTime(session.getEndTime().getTime());
+                // 4. 随机码
+                String token = UUID.randomUUID().toString().replace("-", "");
+                dto.setRandCode(token);
                 hashOps.put(item.getSkuId(), dto);
             });
         });
