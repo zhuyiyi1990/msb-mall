@@ -8,6 +8,8 @@ import com.msb.mall.feign.ProductFeignService;
 import com.msb.mall.service.SeckillService;
 import com.msb.mall.vo.SeckillSessionEntity;
 import com.msb.mall.vo.SkuInfoVo;
+import org.redisson.api.RSemaphore;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.BoundHashOperations;
@@ -29,6 +31,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Autowired
     StringRedisTemplate redisTemplate;
+
+    @Autowired
+    RedissonClient redissonClient;
 
     @Override
     public void uploadSeckillSku3Days() {
@@ -97,6 +102,10 @@ public class SeckillServiceImpl implements SeckillService {
                 // 4. 随机码
                 String token = UUID.randomUUID().toString().replace("-", "");
                 dto.setRandCode(token);
+                // 分布式信号量的处理  限流的目的
+                RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + token);
+                // 把秒杀活动的商品数量作为分布式信号量的信号量
+                semaphore.trySetPermits(item.getSeckillCount().intValue());
                 hashOps.put(item.getSkuId(), dto);
             });
         });
