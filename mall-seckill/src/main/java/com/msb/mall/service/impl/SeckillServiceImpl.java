@@ -2,10 +2,14 @@ package com.msb.mall.service.impl;
 
 import com.msb.common.constant.SeckillConstant;
 import com.msb.common.utils.R;
+import com.msb.mall.dto.SeckillSkuRedisDto;
 import com.msb.mall.feign.CouponFeignService;
+import com.msb.mall.feign.ProductFeignService;
 import com.msb.mall.service.SeckillService;
 import com.msb.mall.vo.SeckillSessionEntity;
+import com.msb.mall.vo.SkuInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +21,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Autowired
     CouponFeignService couponFeignService;
+
+    @Autowired
+    ProductFeignService productFeignService;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -63,6 +70,27 @@ public class SeckillServiceImpl implements SeckillService {
      * @param seckillSessionEntities
      */
     private void saveSessionSkuInfos(List<SeckillSessionEntity> seckillSessionEntities) {
+        seckillSessionEntities.stream().forEach(session -> {
+            // 循环取出每个Session，然后取出对应SkuID 封装相关的信息
+            BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
+            session.getRelationEntities().stream().forEach(item -> {
+                SeckillSkuRedisDto dto = new SeckillSkuRedisDto();
+                // 1.获取SKU的基本信息
+                R info = productFeignService.info(item.getSkuId());
+                if (info.getCode() == 0) {
+                    // 表示查询成功
+                    SkuInfoVo skuInfoVo = (SkuInfoVo) info.get("skuInfo");
+                    dto.setSkuInfoVo(skuInfoVo);
+                }
+                // 2.获取SKU的秒杀信息
+                dto.setSkuId(item.getSkuId());
+                dto.setSeckillPrice(item.getSeckillPrice());
+                dto.setSeckillCount(item.getSeckillCount());
+                dto.setSeckillLimit(item.getSeckillLimit());
+                dto.setSeckillSort(item.getSeckillSort());
+                hashOps.put(item.getSkuId(), dto);
+            });
+        });
     }
 
 }
