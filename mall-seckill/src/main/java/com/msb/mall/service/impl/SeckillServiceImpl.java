@@ -1,5 +1,6 @@
 package com.msb.mall.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.msb.common.constant.SeckillConstant;
 import com.msb.common.utils.R;
 import com.msb.mall.dto.SeckillSkuRedisDto;
@@ -41,7 +42,8 @@ public class SeckillServiceImpl implements SeckillService {
         R r = couponFeignService.getLatest3DaysSession();
         if (r.getCode() == 0) {
             // 表示查询操作成功
-            List<SeckillSessionEntity> seckillSessionEntities = (List<SeckillSessionEntity>) r.get("data");
+            String json = (String) r.get("data");
+            List<SeckillSessionEntity> seckillSessionEntities = JSON.parseArray(json, SeckillSessionEntity.class);
             // 2. 上架商品  Redis数据保存
             // 缓存商品
             // 2.1 缓存每日秒杀的SKU基本信息
@@ -95,7 +97,7 @@ public class SeckillServiceImpl implements SeckillService {
                 dto.setSeckillCount(item.getSeckillCount());
                 dto.setSeckillLimit(item.getSeckillLimit());
                 dto.setSeckillSort(item.getSeckillSort());*/
-                BeanUtils.copyProperties(info, dto);
+                BeanUtils.copyProperties(item, dto);
                 // 3.设置当前商品的秒杀时间
                 dto.setStartTime(session.getStartTime().getTime());
                 dto.setEndTime(session.getEndTime().getTime());
@@ -106,7 +108,7 @@ public class SeckillServiceImpl implements SeckillService {
                 RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + token);
                 // 把秒杀活动的商品数量作为分布式信号量的信号量
                 semaphore.trySetPermits(item.getSeckillCount().intValue());
-                hashOps.put(item.getSkuId(), dto);
+                hashOps.put(item.getSkuId().toString(), JSON.toJSONString(dto));
             });
         });
     }

@@ -1,4 +1,4 @@
-package com.msb.mall.product.config;
+package com.msb.mall.config;
 
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;

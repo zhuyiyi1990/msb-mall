@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
+import com.alibaba.fastjson.JSON;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +31,8 @@ public class SeckillSessionController {
     @GetMapping("/getLatest3DaysSession")
     public R getLatest3DaysSession() {
         List<SeckillSessionEntity> latest3DaysSession = seckillSessionService.getLatest3DaysSession();
-        return R.ok().put("data", latest3DaysSession);
+        String json = JSON.toJSONString(latest3DaysSession);
+        return R.ok().put("data", json);
     }
 
     /**

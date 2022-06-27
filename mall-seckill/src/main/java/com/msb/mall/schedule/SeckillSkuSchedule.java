@@ -20,7 +20,7 @@ public class SeckillSkuSchedule {
     SeckillService seckillService;
 
     @Async
-    @Scheduled(cron = "0 0 2 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void uploadSeckillSku3Days() {
         // 调用上架商品的方法
         seckillService.uploadSeckillSku3Days();
