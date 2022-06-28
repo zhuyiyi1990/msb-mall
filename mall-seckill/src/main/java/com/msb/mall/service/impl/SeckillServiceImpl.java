@@ -65,11 +65,14 @@ public class SeckillServiceImpl implements SeckillService {
             long end = seckillSessionEntity.getEndTime().getTime();
             // 生成Key
             String key = SeckillConstant.SESSION_CACHE_PREFIX + start + "_" + end;
-            // 需要存储到Redis中的这个秒杀活动涉及到的相关的商品信息的SKUID
-            List<String> collect = seckillSessionEntity.getRelationEntities().stream().map(item -> {
-                return item.getSkuId().toString();
-            }).collect(Collectors.toList());
-            redisTemplate.opsForList().leftPushAll(key, collect);
+            Boolean flag = redisTemplate.hasKey(key);
+            if (!flag) {// 表示这个秒杀活动在Redis中不存在，也就是还没有上架，那么需要保存
+                // 需要存储到Redis中的这个秒杀活动涉及到的相关的商品信息的SKUID
+                List<String> collect = seckillSessionEntity.getRelationEntities().stream().map(item -> {
+                    return item.getSkuId().toString();
+                }).collect(Collectors.toList());
+                redisTemplate.opsForList().leftPushAll(key, collect);
+            }
         }
     }
 
@@ -83,32 +86,36 @@ public class SeckillServiceImpl implements SeckillService {
             // 循环取出每个Session，然后取出对应SkuID 封装相关的信息
             BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
             session.getRelationEntities().stream().forEach(item -> {
-                SeckillSkuRedisDto dto = new SeckillSkuRedisDto();
-                // 1.获取SKU的基本信息
-                R info = productFeignService.info(item.getSkuId());
-                if (info.getCode() == 0) {
-                    // 表示查询成功
-                    String json = (String) info.get("skuInfoJSON");
-                    dto.setSkuInfoVo(JSON.parseObject(json, SkuInfoVo.class));
+                String skuKey = item.getPromotionSessionId() + "_" + item.getSkuId();
+                Boolean flag = redisTemplate.hasKey(skuKey);
+                if (!flag) {
+                    SeckillSkuRedisDto dto = new SeckillSkuRedisDto();
+                    // 1.获取SKU的基本信息
+                    R info = productFeignService.info(item.getSkuId());
+                    if (info.getCode() == 0) {
+                        // 表示查询成功
+                        String json = (String) info.get("skuInfoJSON");
+                        dto.setSkuInfoVo(JSON.parseObject(json, SkuInfoVo.class));
+                    }
+                    // 2.获取SKU的秒杀信息
+                    /*dto.setSkuId(item.getSkuId());
+                    dto.setSeckillPrice(item.getSeckillPrice());
+                    dto.setSeckillCount(item.getSeckillCount());
+                    dto.setSeckillLimit(item.getSeckillLimit());
+                    dto.setSeckillSort(item.getSeckillSort());*/
+                    BeanUtils.copyProperties(item, dto);
+                    // 3.设置当前商品的秒杀时间
+                    dto.setStartTime(session.getStartTime().getTime());
+                    dto.setEndTime(session.getEndTime().getTime());
+                    // 4. 随机码
+                    String token = UUID.randomUUID().toString().replace("-", "");
+                    dto.setRandCode(token);
+                    // 分布式信号量的处理  限流的目的
+                    RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + token);
+                    // 把秒杀活动的商品数量作为分布式信号量的信号量
+                    semaphore.trySetPermits(item.getSeckillCount().intValue());
+                    hashOps.put(skuKey, JSON.toJSONString(dto));
                 }
-                // 2.获取SKU的秒杀信息
-                /*dto.setSkuId(item.getSkuId());
-                dto.setSeckillPrice(item.getSeckillPrice());
-                dto.setSeckillCount(item.getSeckillCount());
-                dto.setSeckillLimit(item.getSeckillLimit());
-                dto.setSeckillSort(item.getSeckillSort());*/
-                BeanUtils.copyProperties(item, dto);
-                // 3.设置当前商品的秒杀时间
-                dto.setStartTime(session.getStartTime().getTime());
-                dto.setEndTime(session.getEndTime().getTime());
-                // 4. 随机码
-                String token = UUID.randomUUID().toString().replace("-", "");
-                dto.setRandCode(token);
-                // 分布式信号量的处理  限流的目的
-                RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + token);
-                // 把秒杀活动的商品数量作为分布式信号量的信号量
-                semaphore.trySetPermits(item.getSeckillCount().intValue());
-                hashOps.put(item.getSkuId().toString(), JSON.toJSONString(dto));
             });
         });
     }
