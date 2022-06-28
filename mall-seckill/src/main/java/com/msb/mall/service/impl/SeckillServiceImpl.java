@@ -88,8 +88,8 @@ public class SeckillServiceImpl implements SeckillService {
                 R info = productFeignService.info(item.getSkuId());
                 if (info.getCode() == 0) {
                     // 表示查询成功
-                    SkuInfoVo skuInfoVo = (SkuInfoVo) info.get("skuInfo");
-                    dto.setSkuInfoVo(skuInfoVo);
+                    String json = (String) info.get("skuInfoJSON");
+                    dto.setSkuInfoVo(JSON.parseObject(json, SkuInfoVo.class));
                 }
                 // 2.获取SKU的秒杀信息
                 /*dto.setSkuId(item.getSkuId());

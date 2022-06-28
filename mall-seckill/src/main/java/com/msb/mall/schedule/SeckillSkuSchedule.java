@@ -7,6 +7,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * 定时上架秒杀商品信息
  */
@@ -22,6 +24,7 @@ public class SeckillSkuSchedule {
     @Async
     @Scheduled(cron = "0 * * * * *")
     public void uploadSeckillSku3Days() {
+        log.info("定时上架秒杀商品执行了...." + new Date());
         // 调用上架商品的方法
         seckillService.uploadSeckillSku3Days();
     }
