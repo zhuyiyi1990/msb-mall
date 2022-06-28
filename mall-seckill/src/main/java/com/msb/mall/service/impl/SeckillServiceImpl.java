@@ -17,7 +17,9 @@ import org.springframework.data.redis.core.BoundHashOperations;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -51,6 +53,31 @@ public class SeckillServiceImpl implements SeckillService {
             // 2.2 缓存每日秒杀的商品信息
             saveSessionSkuInfos(seckillSessionEntities);
         }
+    }
+
+    /**
+     * 查询出当前时间内的秒杀活动及对应的商品SKU信息
+     *
+     * @return
+     */
+    @Override
+    public List<SeckillSkuRedisDto> getCurrentSeckillSkus() {
+        // 1.确定当前时间是属于哪个秒杀活动的
+        long time = new Date().getTime();
+        // 从Redis中查询所有的秒杀活动
+        Set<String> keys = redisTemplate.keys(SeckillConstant.SESSION_CACHE_PREFIX + "*");
+        for (String key : keys) {
+            //seckill:sessions1656554400000_1656556200000
+            String replace = key.replace(SeckillConstant.SESSION_CACHE_PREFIX, "");
+            // 1656554400000_1656556200000
+            String[] s = replace.split("_");
+            Long start = Long.parseLong(s[0]); // 活动开始的时间
+            Long end = Long.parseLong(s[1]); // 活动结束的时间
+            if (time > start && time < end) {
+                // 说明当前的秒杀活动就是当前时间需要参与的活动
+            }
+        }
+        return null;
     }
 
     /**
