@@ -92,6 +92,17 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     /**
+     * 根据SKUID查询秒杀活动对应的信息
+     *
+     * @param skuId
+     * @return
+     */
+    @Override
+    public SeckillSkuRedisDto getSeckillSessionBySkuId(Long skuId) {
+        return null;
+    }
+
+    /**
      * 保存每日活动的信息到Redis中
      *
      * @param seckillSessionEntities

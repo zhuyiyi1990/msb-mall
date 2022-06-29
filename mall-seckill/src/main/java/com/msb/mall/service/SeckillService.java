@@ -10,4 +10,6 @@ public interface SeckillService {
 
     List<SeckillSkuRedisDto> getCurrentSeckillSkus();
 
+    SeckillSkuRedisDto getSeckillSessionBySkuId(Long skuId);
+
 }

@@ -6,6 +6,7 @@ import com.msb.mall.dto.SeckillSkuRedisDto;
 import com.msb.mall.service.SeckillService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,12 @@ public class SeckillController {
     public R getCurrentSeckillSessionSkus() {
         List<SeckillSkuRedisDto> currentSeckillSkus = seckillService.getCurrentSeckillSkus();
         return R.ok().put("data", JSON.toJSONString(currentSeckillSkus));
+    }
+
+    @GetMapping("/seckillSessionBySkuId/{skuId}")
+    public R getSeckillSessionBySkuId(@PathVariable("skuId") Long skuId) {
+        SeckillSkuRedisDto dto = seckillService.getSeckillSessionBySkuId(skuId);
+        return R.ok().put("data", JSON.toJSONString(dto));
     }
 
 }
