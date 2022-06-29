@@ -75,6 +75,17 @@ public class SeckillServiceImpl implements SeckillService {
             Long end = Long.parseLong(s[1]); // 活动结束的时间
             if (time > start && time < end) {
                 // 说明当前的秒杀活动就是当前时间需要参与的活动
+                // 取出来的是SKU的ID  2_9
+                List<String> range = redisTemplate.opsForList().range(key, -100, 100);
+                BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
+                List<String> list = ops.multiGet(range);
+                if (list != null && list.size() > 0) {
+                    List<SeckillSkuRedisDto> collect = list.stream().map(item -> {
+                        SeckillSkuRedisDto seckillSkuRedisDto = JSON.parseObject(item, SeckillSkuRedisDto.class);
+                        return seckillSkuRedisDto;
+                    }).collect(Collectors.toList());
+                    return collect;
+                }
             }
         }
         return null;
@@ -96,7 +107,8 @@ public class SeckillServiceImpl implements SeckillService {
             if (!flag) {// 表示这个秒杀活动在Redis中不存在，也就是还没有上架，那么需要保存
                 // 需要存储到Redis中的这个秒杀活动涉及到的相关的商品信息的SKUID
                 List<String> collect = seckillSessionEntity.getRelationEntities().stream().map(item -> {
-                    return item.getSkuId().toString();
+                    // 秒杀活动存储的 VALUE是 sessionId_SkuId
+                    return item.getPromotionSessionId() + "_" + item.getSkuId().toString();
                 }).collect(Collectors.toList());
                 redisTemplate.opsForList().leftPushAll(key, collect);
             }
