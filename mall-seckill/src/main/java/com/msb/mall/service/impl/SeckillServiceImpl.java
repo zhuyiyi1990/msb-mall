@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -99,6 +100,21 @@ public class SeckillServiceImpl implements SeckillService {
      */
     @Override
     public SeckillSkuRedisDto getSeckillSessionBySkuId(Long skuId) {
+        // 1.找到所有需要参与秒杀的商品的sku信息
+        BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
+        Set<String> keys = ops.keys();
+        if (keys != null && keys.size() > 0) {
+            String regex = "\\d_" + skuId;
+            for (String key : keys) {
+                boolean matches = Pattern.matches(regex, key);
+                if (matches) {
+                    // 说明找到了对应的SKU的信息
+                    String json = ops.get(key);
+                    SeckillSkuRedisDto dto = JSON.parseObject(json, SeckillSkuRedisDto.class);
+                    return dto;
+                }
+            }
+        }
         return null;
     }
 

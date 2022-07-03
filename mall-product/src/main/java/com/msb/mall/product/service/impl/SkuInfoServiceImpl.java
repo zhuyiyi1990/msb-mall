@@ -1,8 +1,12 @@
 package com.msb.mall.product.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.msb.common.utils.R;
 import com.msb.mall.product.entity.SkuImagesEntity;
 import com.msb.mall.product.entity.SpuInfoDescEntity;
+import com.msb.mall.product.feign.SeckillFeignService;
 import com.msb.mall.product.service.*;
+import com.msb.mall.product.vo.SeckillVO;
 import com.msb.mall.product.vo.SkuItemSaleAttrVo;
 import com.msb.mall.product.vo.SpuItemGroupAttrVo;
 import com.msb.mall.product.vo.SpuItemVO;
@@ -26,7 +30,6 @@ import com.msb.mall.product.dao.SkuInfoDao;
 import com.msb.mall.product.entity.SkuInfoEntity;
 import org.springframework.util.StringUtils;
 
-
 @Service("skuInfoService")
 public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService {
 
@@ -48,13 +51,15 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     @Autowired
     ThreadPoolExecutor threadPoolExecutor;
 
+    @Autowired
+    SeckillFeignService seckillFeignService;
+
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
                 new Query<SkuInfoEntity>().getPage(params),
                 new QueryWrapper<SkuInfoEntity>()
         );
-
         return new PageUtils(page);
     }
 
@@ -79,7 +84,6 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
                 w.eq("sku_id", key).or().like("sku_name", key);
             });
         }
-
         // 分类
         String catalogId = (String) params.get("catalogId");
         if (!StringUtils.isEmpty(catalogId) && !"0".equalsIgnoreCase(catalogId)) {
@@ -112,7 +116,6 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
                 new Query<SkuInfoEntity>().getPage(params),
                 wrapper
         );
-
         return new PageUtils(page);
     }
 
@@ -135,7 +138,6 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             // 1.sku的基本信息 pms_sku_info
             SkuInfoEntity skuInfoEntity = getById(skuId);
             vo.setInfo(skuInfoEntity);
-
             return skuInfoEntity;
         }, threadPoolExecutor);
 
@@ -165,14 +167,19 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
             vo.setImages(images);
         }, threadPoolExecutor);
 
+        CompletableFuture<Void> seckillFuture = CompletableFuture.runAsync(() -> {
+            // 查询商品的秒杀活动
+            R r = seckillFeignService.getSeckillSessionBySkuId(skuId);
+            SeckillVO seckillVO = JSON.parseObject(r.get("data").toString(), SeckillVO.class);
+            vo.setSeckillVO(seckillVO);
+        }, threadPoolExecutor);
 
-        CompletableFuture.allOf(saleFuture, spuFuture, imageFuture, groupFuture).get();
+        CompletableFuture.allOf(saleFuture, spuFuture, imageFuture, groupFuture, seckillFuture).get();
         return vo;
     }
 
     @Override
     public List<String> getSkuSaleAttrs(Long skuId) {
-
         return this.skuInfoDao.getSkuSaleAttrs(skuId);
     }
 

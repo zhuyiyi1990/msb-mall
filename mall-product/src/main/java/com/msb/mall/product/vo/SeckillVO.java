@@ -1,15 +1,11 @@
-package com.msb.mall.dto;
+package com.msb.mall.product.vo;
 
-import com.msb.mall.vo.SkuInfoVo;
 import lombok.Data;
 
 import java.math.BigDecimal;
 
-/**
- * 封装SKU相关信息，保存到Redis中的传输对象
- */
 @Data
-public class SeckillSkuRedisDto {
+public class SeckillVO {
 
     private Long skuId;
 
@@ -27,7 +23,5 @@ public class SeckillSkuRedisDto {
 
     // 随机码
     private String randCode;
-
-    private SkuInfoVo skuInfoVo;
 
 }

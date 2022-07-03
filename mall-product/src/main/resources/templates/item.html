@@ -508,8 +508,8 @@
                             <span>￥</span>
                             <span th:text="${#numbers.formatDecimal(item.info.price,3,2)}">4499.00</span>
                         </li>
-                        <li>
-                            预约享资格
+                        <li style="color: red">
+                            [[${item.seckillVO.startTime}]]
                         </li>
                         <li>
                             <a href="/static/item/">

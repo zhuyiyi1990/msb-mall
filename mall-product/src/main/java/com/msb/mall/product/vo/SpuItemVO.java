@@ -23,4 +23,8 @@ public class SpuItemVO {
     SpuInfoDescEntity desc;
     // 5.获取SPU的规格参数
     List<SpuItemGroupAttrVo> baseAttrs;
+
+    // 6.绑定的对应的秒杀服务
+    SeckillVO seckillVO;
+
 }
