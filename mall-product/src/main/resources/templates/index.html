@@ -599,13 +599,18 @@
       var keyword=$("#searchText").val()
       window.location.href="http://search.msb.com/list.html?keyword="+keyword;
   }
+  // http://item.msb.com/9.html
+  function goItem(skuId){
+    location.href="http://item.msb.com/"+skuId+".html"
+  }
 
   $.get("http://seckill.msb.com/seckill/currentSeckillSessionSkus",function(resp){
     if(resp.data.length > 0){
       // 说明有秒杀的数据
       console.log($.parseJSON(resp.data))
       $.parseJSON(resp.data).forEach(function(item){
-        $("<li></li>").append("<img width='130px' height='130px' src='"+item.skuInfoVo.skuDefaultImg+"'/>")
+        $("<li onclick='goItem("+item.skuId+")'></li>")
+                .append("<img width='130px' height='130px' src='"+item.skuInfoVo.skuDefaultImg+"'/>")
                 .append("<p>"+item.skuInfoVo.skuSubtitle+"</p>")
                 .append("<span>"+item.seckillPrice+"</span>")
                 .append("<s>"+item.skuInfoVo.price+"</s>")
