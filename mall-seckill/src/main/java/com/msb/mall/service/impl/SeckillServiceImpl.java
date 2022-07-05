@@ -104,7 +104,7 @@ public class SeckillServiceImpl implements SeckillService {
         BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
         Set<String> keys = ops.keys();
         if (keys != null && keys.size() > 0) {
-            String regex = "\\d_" + skuId;
+            String regex = "\\d_" + skuId; // 2_1
             for (String key : keys) {
                 boolean matches = Pattern.matches(regex, key);
                 if (matches) {
@@ -176,6 +176,8 @@ public class SeckillServiceImpl implements SeckillService {
                     // 4. 随机码
                     String token = UUID.randomUUID().toString().replace("-", "");
                     dto.setRandCode(token);
+                    // 绑定对应的 活动编号
+                    dto.setPromotionSessionId(item.getPromotionSessionId());
                     // 分布式信号量的处理  限流的目的
                     RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + token);
                     // 把秒杀活动的商品数量作为分布式信号量的信号量

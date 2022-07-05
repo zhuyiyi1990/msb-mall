@@ -11,6 +11,8 @@ import java.math.BigDecimal;
 @Data
 public class SeckillSkuRedisDto {
 
+    private Long promotionSessionId;
+
     private Long skuId;
 
     private BigDecimal seckillPrice;

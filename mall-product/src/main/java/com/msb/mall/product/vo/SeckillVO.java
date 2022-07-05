@@ -7,6 +7,8 @@ import java.math.BigDecimal;
 @Data
 public class SeckillVO {
 
+    private Long promotionSessionId;
+
     private Long skuId;
 
     private BigDecimal seckillPrice;

@@ -638,9 +638,16 @@
 
                         </div>
                     </div>
-                    <div class="box-btns-two">
+                    <div class="box-btns-two" th:if="${#dates.createNow().getTime() < item.seckillVO.startTime
+                            || #dates.createNow().getTime() > item.seckillVO.endTime}">
                         <a href="#" id="addCart" th:attr="skuId=${item.info.skuId}">
                             加入购物车
+                        </a>
+                    </div>
+                    <div class="box-btns-two" th:if="${#dates.createNow().getTime() > item.seckillVO.startTime
+                            && #dates.createNow().getTime() < item.seckillVO.endTime}">
+                        <a href="#" id="seckillId" th:attr="skuId=${item.info.skuId},sessionId=${item.seckillVO.promotionSessionId},code=${item.seckillVO.randCode}">
+                            抢购商品
                         </a>
                     </div>
                     <div class="box-btns-three">
@@ -1262,6 +1269,17 @@
         var num = $("#numInput").val();
         var skuId = $(this).attr("skuId");
         location.href="http://cart.msb.com/addCart?skuId="+skuId+"&num="+num;
+    });
+
+    $("#seckillId").click(function(){
+        // 1. 获取活动编号和SkuId 2_10
+        var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
+        // 2. 获取对应的随机码
+        var code = $(this).attr("code");
+        // 3. 获取秒杀的商品数量
+        var num = $("#numInput").val();
+        location.href="http://seckill.msb.com/seckill/kill?killId="+killId + "&code="+code+"&num="+num;
+        return false;
     });
 </script>
 
