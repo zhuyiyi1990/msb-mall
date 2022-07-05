@@ -3,12 +3,15 @@ package com.msb.mall.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.msb.common.constant.SeckillConstant;
 import com.msb.common.utils.R;
+import com.msb.common.vo.MemberVO;
 import com.msb.mall.dto.SeckillSkuRedisDto;
 import com.msb.mall.feign.CouponFeignService;
 import com.msb.mall.feign.ProductFeignService;
+import com.msb.mall.interceptor.AuthInterceptor;
 import com.msb.mall.service.SeckillService;
 import com.msb.mall.vo.SeckillSessionEntity;
 import com.msb.mall.vo.SkuInfoVo;
+import org.apache.commons.lang.StringUtils;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -21,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -112,6 +116,53 @@ public class SeckillServiceImpl implements SeckillService {
                     String json = ops.get(key);
                     SeckillSkuRedisDto dto = JSON.parseObject(json, SeckillSkuRedisDto.class);
                     return dto;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 实现秒杀逻辑
+     *
+     * @param killId
+     * @param code
+     * @param num
+     * @return
+     */
+    @Override
+    public String kill(String killId, String code, Integer num) {
+        // 1.根据killId获取当前秒杀的商品的信息  Redis中
+        BoundHashOperations<String, String, String> ops = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
+        String json = ops.get(killId);
+        if (StringUtils.isNotBlank(json)) {
+            SeckillSkuRedisDto dto = JSON.parseObject(json, SeckillSkuRedisDto.class);
+            // 校验合法性  1.校验时效性
+            Long startTime = dto.getStartTime();
+            Long endTime = dto.getEndTime();
+            long now = new Date().getTime();
+            if (now > startTime && now < endTime) {
+                // 说明是在秒杀活动时间范围内的请求
+                // 2.校验 随机码和商品 是否合法
+                String randCode = dto.getRandCode();
+                Long skuId = dto.getSkuId();
+                String redisKillId = dto.getPromotionSessionId() + "_" + skuId;
+                if (randCode.equals(code) && killId.equals(redisKillId)) {
+                    // 随机码校验合法
+                    // 3.判断抢购商品数量是否合法
+                    if (num <= dto.getSeckillLimit().intValue()) {
+                        // 满足限购的条件
+                        // 4.判断是否满足 幂等性
+                        // 只要抢购成功我们就在Redis中 存储一条信息 userId + sessionId + skuId
+                        MemberVO memberVO = AuthInterceptor.threadLocal.get();
+                        Long id = memberVO.getId();
+                        String redisKey = id + "_" + redisKillId;
+                        Boolean aBoolean = redisTemplate.opsForValue()
+                                .setIfAbsent(redisKey, num.toString(), (endTime - now), TimeUnit.MILLISECONDS);
+                        if (aBoolean) {
+                            // 表示数据插入成功 是第一次操作
+                        }
+                    }
                 }
             }
         }

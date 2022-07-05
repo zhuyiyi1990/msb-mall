@@ -38,7 +38,7 @@ public class SeckillController {
     public R seckill(@RequestParam("killId") String killId,
                      @RequestParam("code") String code,
                      @RequestParam("num") Integer num) {
-        // 1.校验是否登录 --》通过拦截器去实现
+        String orderSN = seckillService.kill(killId, code, num);
         return R.ok();
     }
 
