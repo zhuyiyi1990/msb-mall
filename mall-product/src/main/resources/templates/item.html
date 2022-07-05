@@ -1272,13 +1272,19 @@
     });
 
     $("#seckillId").click(function(){
-        // 1. 获取活动编号和SkuId 2_10
-        var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
-        // 2. 获取对应的随机码
-        var code = $(this).attr("code");
-        // 3. 获取秒杀的商品数量
-        var num = $("#numInput").val();
-        location.href="http://seckill.msb.com/seckill/kill?killId="+killId + "&code="+code+"&num="+num;
+        var isLogin = [[${session.loginUser !=null}]]
+        if(isLogin){
+            // 1. 获取活动编号和SkuId 2_10
+            var killId = $(this).attr("sessionId") + "_" + $(this).attr("skuId");
+            // 2. 获取对应的随机码
+            var code = $(this).attr("code");
+            // 3. 获取秒杀的商品数量
+            var num = $("#numInput").val();
+            location.href="http://seckill.msb.com/seckill/kill?killId="+killId + "&code="+code+"&num="+num;
+        }else{
+            alert("请先登录才能参加秒杀活动!!!");
+        }
+
         return false;
     });
 </script>

@@ -28,4 +28,17 @@ public class SeckillController {
         return R.ok().put("data", JSON.toJSONString(dto));
     }
 
+    /**
+     * 秒杀抢购
+     * killId=1_4&code=82bd0361a5c944eb8344b5a1ef58a628&num=1
+     *
+     * @return
+     */
+    @GetMapping("/kill")
+    public R seckill(@RequestParam("killId") String killId,
+                     @RequestParam("code") String code,
+                     @RequestParam("num") Integer num) {
+        return R.ok();
+    }
+
 }
