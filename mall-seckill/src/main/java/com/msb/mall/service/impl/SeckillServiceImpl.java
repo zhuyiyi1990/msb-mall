@@ -2,6 +2,7 @@ package com.msb.mall.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.msb.common.constant.SeckillConstant;
+import com.msb.common.dto.SeckillOrderDto;
 import com.msb.common.utils.R;
 import com.msb.common.vo.MemberVO;
 import com.msb.mall.dto.SeckillSkuRedisDto;
@@ -161,6 +162,25 @@ public class SeckillServiceImpl implements SeckillService {
                                 .setIfAbsent(redisKey, num.toString(), (endTime - now), TimeUnit.MILLISECONDS);
                         if (aBoolean) {
                             // 表示数据插入成功 是第一次操作
+                            RSemaphore semaphore = redissonClient.getSemaphore(SeckillConstant.SKU_STOCK_SEMAPHORE + randCode);
+                            try {
+                                boolean b = semaphore.tryAcquire(num, 100, TimeUnit.MILLISECONDS);
+                                if (b) {
+                                    // 表示秒杀成功
+                                    String orderSN = UUID.randomUUID().toString().replace("-", "");
+                                    // TODO 继续完成快速下订单操作  --> RocketMQ
+                                    SeckillOrderDto orderDto = new SeckillOrderDto();
+                                    orderDto.setOrderSN(orderSN);
+                                    orderDto.setSkuId(skuId);
+                                    orderDto.setSeckillPrice(dto.getSeckillPrice());
+                                    orderDto.setMemberId(id);
+                                    orderDto.setNum(num);
+                                    orderDto.setPromotionSessionId(dto.getPromotionSessionId());
+                                    return orderSN;
+                                }
+                            } catch (InterruptedException e) {
+                                return null;
+                            }
                         }
                     }
                 }
@@ -204,7 +224,8 @@ public class SeckillServiceImpl implements SeckillService {
             BoundHashOperations<String, Object, Object> hashOps = redisTemplate.boundHashOps(SeckillConstant.SKU_CACHE_PREFIX);
             session.getRelationEntities().stream().forEach(item -> {
                 String skuKey = item.getPromotionSessionId() + "_" + item.getSkuId();
-                Boolean flag = redisTemplate.hasKey(skuKey);
+                // Boolean flag = redisTemplate.hasKey(skuKey);
+                Boolean flag = hashOps.hasKey(skuKey);
                 if (!flag) {
                     SeckillSkuRedisDto dto = new SeckillSkuRedisDto();
                     // 1.获取SKU的基本信息
