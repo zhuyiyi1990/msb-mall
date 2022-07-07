@@ -39,7 +39,7 @@ public class SeckillController {
                      @RequestParam("code") String code,
                      @RequestParam("num") Integer num) {
         String orderSN = seckillService.kill(killId, code, num);
-        return R.ok();
+        return R.ok().put("data", orderSN);
     }
 
 }

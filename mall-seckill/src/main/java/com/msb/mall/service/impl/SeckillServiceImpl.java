@@ -1,6 +1,7 @@
 package com.msb.mall.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.msb.common.constant.OrderConstant;
 import com.msb.common.constant.SeckillConstant;
 import com.msb.common.dto.SeckillOrderDto;
 import com.msb.common.utils.R;
@@ -13,6 +14,7 @@ import com.msb.mall.service.SeckillService;
 import com.msb.mall.vo.SeckillSessionEntity;
 import com.msb.mall.vo.SkuInfoVo;
 import org.apache.commons.lang.StringUtils;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -43,6 +45,9 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Autowired
     RedissonClient redissonClient;
+
+    @Autowired
+    RocketMQTemplate rocketMQTemplate;
 
     @Override
     public void uploadSeckillSku3Days() {
@@ -168,7 +173,7 @@ public class SeckillServiceImpl implements SeckillService {
                                 if (b) {
                                     // 表示秒杀成功
                                     String orderSN = UUID.randomUUID().toString().replace("-", "");
-                                    // TODO 继续完成快速下订单操作  --> RocketMQ
+                                    // 继续完成快速下订单操作  --> RocketMQ
                                     SeckillOrderDto orderDto = new SeckillOrderDto();
                                     orderDto.setOrderSN(orderSN);
                                     orderDto.setSkuId(skuId);
@@ -176,6 +181,9 @@ public class SeckillServiceImpl implements SeckillService {
                                     orderDto.setMemberId(id);
                                     orderDto.setNum(num);
                                     orderDto.setPromotionSessionId(dto.getPromotionSessionId());
+                                    // 通过RocketMQ 发送异步消息
+                                    rocketMQTemplate.sendOneWay(OrderConstant.ROCKETMQ_SECKILL_ORDER_TOPIC
+                                            , JSON.toJSONString(orderDto));
                                     return orderSN;
                                 }
                             } catch (InterruptedException e) {
