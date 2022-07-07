@@ -18,6 +18,8 @@ spring:
     store-type: REDIS
     redis:
       namespace: spring:redis
+  thymeleaf:
+    cache: false
 
 server:
   port: 9600

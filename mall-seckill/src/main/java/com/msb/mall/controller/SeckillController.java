@@ -5,11 +5,13 @@ import com.msb.common.utils.R;
 import com.msb.mall.dto.SeckillSkuRedisDto;
 import com.msb.mall.service.SeckillService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+@Controller
 @RequestMapping("/seckill")
 public class SeckillController {
 
@@ -17,11 +19,13 @@ public class SeckillController {
     SeckillService seckillService;
 
     @GetMapping("/currentSeckillSessionSkus")
+    @ResponseBody
     public R getCurrentSeckillSessionSkus() {
         List<SeckillSkuRedisDto> currentSeckillSkus = seckillService.getCurrentSeckillSkus();
         return R.ok().put("data", JSON.toJSONString(currentSeckillSkus));
     }
 
+    @ResponseBody
     @GetMapping("/seckillSessionBySkuId")
     public R getSeckillSessionBySkuId(@RequestParam("skuId") Long skuId) {
         SeckillSkuRedisDto dto = seckillService.getSeckillSessionBySkuId(skuId);
@@ -35,11 +39,13 @@ public class SeckillController {
      * @return
      */
     @GetMapping("/kill")
-    public R seckill(@RequestParam("killId") String killId,
-                     @RequestParam("code") String code,
-                     @RequestParam("num") Integer num) {
+    public String seckill(@RequestParam("killId") String killId,
+                          @RequestParam("code") String code,
+                          @RequestParam("num") Integer num,
+                          Model model) {
         String orderSN = seckillService.kill(killId, code, num);
-        return R.ok().put("data", orderSN);
+        model.addAttribute("orderSn", orderSN);
+        return "success";
     }
 
 }
