@@ -35,3 +35,9 @@ rocketmq:
     group: seckill-order-producer
   consumer:
     group: seckill-order-consumer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
