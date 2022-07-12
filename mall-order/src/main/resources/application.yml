@@ -12,6 +12,11 @@ spring:
     alibaba:
       seata:
         tx-service-group: mall-order-group
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: 192.168.248.100:8858
+        client-ip: 192.168.248.1
   application:
     name: mall-order
   session:
@@ -50,3 +55,9 @@ rocketmq:
     group: order-producer
   consumer:
     group: order-consumer
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -72,9 +72,20 @@ spring:
           uri: lb://mall-seckill
           predicates:
             - Host=seckill.msb.com
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: 192.168.248.100:8858
+        client-ip: 192.168.248.1
 
 # localhost:8070/app/captcha.jpg -->
 # localhost:8080/app/captcha.jpg localhost:8080/renren-fast/captcha.jpg
 # 指定注册中心的服务端口
 server:
   port: 8070
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

@@ -14,6 +14,17 @@ spring:
         path: /data/send_sms
         method: POST
         appCode: 52b846ac1f574a2e8a74e2df7585c24c
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: 192.168.248.100:8858
+        client-ip: 192.168.248.1
 
 server:
   port: 8100
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'

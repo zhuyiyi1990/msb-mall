@@ -8,6 +8,11 @@ spring:
     nacos:
       discovery:
         server-addr: 192.168.248.100:8848
+    sentinel:
+      transport:
+        port: 8719
+        dashboard: 192.168.248.100:8858
+        client-ip: 192.168.248.1
   application:
     name: mall-coupon
 
@@ -19,3 +24,9 @@ mybatis-plus:
 
 server:
   port: 8010
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
