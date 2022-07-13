@@ -28,6 +28,11 @@ public class SeckillController {
     @ResponseBody
     @GetMapping("/seckillSessionBySkuId")
     public R getSeckillSessionBySkuId(@RequestParam("skuId") Long skuId) {
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         SeckillSkuRedisDto dto = seckillService.getSeckillSessionBySkuId(skuId);
         return R.ok().put("data", JSON.toJSONString(dto));
     }
