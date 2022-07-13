@@ -53,3 +53,7 @@ management:
   endpoint:
     health:
       show-details: always
+
+feign:
+  sentinel:
+    enabled: true
