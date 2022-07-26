@@ -20,6 +20,7 @@ import com.msb.mall.vo.SkuInfoVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.redisson.api.RSemaphore;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
@@ -55,6 +56,7 @@ public class SeckillServiceImpl implements SeckillService {
     @Autowired
     RocketMQTemplate rocketMQTemplate;
 
+    @Trace
     @Override
     public void uploadSeckillSku3Days() {
         // 1. 通过OpenFeign 远程调用Coupon服务中接口来获取未来三天的秒杀活动的商品

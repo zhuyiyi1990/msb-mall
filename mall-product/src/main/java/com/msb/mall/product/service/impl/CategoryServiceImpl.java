@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.msb.mall.product.service.CategoryBrandRelationService;
 import com.msb.mall.product.vo.Catalog2VO;
+import org.apache.skywalking.apm.toolkit.trace.Trace;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,12 +107,27 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
 
     /**
      * 查询出所有的商品大类(一级分类)
+     * 在注解中我们可以指定对应的缓存的名称，起到一个分区的作用，一般按照业务来区分
+     * Cacheable({"catagory","product"}) 代表当前的方法的返回结果是需要缓存的，
+     * 调用该方法的时候，如果缓存中有数据，那么该方法就不会执行，
+     * 如果缓存中没有数据，那么就执行该方法并且把查询的结果缓存起来
+     * 缓存处理
+     * 1.存储在Redis中的缓存数据的Key是默认生成的：缓存名称::SimpleKey[]
+     * 2.默认缓存的数据的过期时间是-1永久
+     * 3.缓存的数据，默认使用的是jdk的序列化机制
+     * 改进：
+     * 1.生成的缓存数据我们需要指定自定义的key： key属性来指定，可以直接字符串定义也可以通过SPEL表达式处理：#root.method.name
+     * 2.指定缓存数据的存活时间: spring.cache.redis.time-to-live 指定过期时间
+     * 3.把缓存的数据保存为JSON数据
+     * SpringCache的原理
+     * CacheAutoConfiguration--》根据指定的spring.cache.type=redis会导入 RedisCacheAutoConfiguration
      *
      * @return
      */
-    @Override
+    @Trace
     //@Cacheable(value = {"category", "product"}, key = "'level1Category'")
     @Cacheable(value = "category", key = "#root.method.name", sync = true)
+    @Override
     public List<CategoryEntity> getLevel1Category() {
         System.out.println("查询了数据库操作.....");
         long start = System.currentTimeMillis();
